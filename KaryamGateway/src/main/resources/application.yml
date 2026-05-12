@@ -1,0 +1,34 @@
+server:
+  port: 8080
+
+debug: true
+
+spring:
+  application:
+    name: KaryamGateway
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+          - id: operations-service
+            uri: lb://OperationsService
+            predicates:
+            - Path=/operations/**
+          - id: notification-service
+            uri: lb://NotificationService
+            predicates:
+            - Path=/notification/**
+          - id: audit-service
+            uri: lb://AuditService
+            predicates:
+            - Path=/audit/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+      
+karyam:
+  cors:
+    allowed-origins: http://localhost
