@@ -1,0 +1,95 @@
+<!-- Sidebar Component for KARYAM Construction ERP -->
+<!-- <aside id="sidebar" style="position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width); background: var(--secondary); color: white; padding: 24px 0; overflow-y: auto; z-index: 100; transition: var(--transition);"> -->
+<aside id="sidebar" style="
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--secondary);
+  color: white;
+  padding: 24px 0;
+  overflow-y: auto;
+  z-index: 100;
+  transition: var(--transition);
+
+  display: flex;
+  flex-direction: column;
+">
+
+  <!-- Logo -->
+  <div style="padding: 0 24px; margin-bottom: 32px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div
+        style="width: 48px; height: 48px; background: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px;">
+        🏗️
+      </div>
+      <div>
+        <h2 style="color: white; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; line-height: 1;">KARYAM
+        </h2>
+        <p style="color: rgba(255, 255, 255, 0.6); font-size: 11px; margin-top: 2px;">Construction ERP</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav id="sidebarNav" style="padding: 0 12px; flex: 1;">
+    <!-- Navigation items will be populated by JavaScript based on role -->
+  </nav>
+</aside>
+
+<!-- Mobile Menu Toggle -->
+<button id="mobileMenuToggle" class="hide-desktop"
+  style="position: fixed; top: 20px; left: 20px; z-index: 101; background: var(--primary); border: none; width: 44px; height: 44px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-lg);">
+  <span style="font-size: 24px; color: white;">☰</span>
+</button>
+
+<style>
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    margin-bottom: 4px;
+    border-radius: var(--radius);
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-weight: 500;
+    font-family: var(--font-display);
+    transition: var(--transition);
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateX(4px);
+  }
+
+  .nav-item.active {
+    background: var(--primary);
+    color: white;
+  }
+
+  .nav-icon {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    #sidebar {
+      transform: translateX(-100%);
+    }
+
+    #sidebar.mobile-open {
+      transform: translateX(0);
+      box-shadow: var(--shadow-xl);
+    }
+  }
+
+  #sidebar {
+    overflow-y: auto;
+  }
+</style>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARYAM - Expense Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+
+<body>
+
+  <!-- Include Sidebar -->
+  <div id="sidebarContainer"></div>
+
+  <!-- Main Content -->
+  <div style="margin-left: var(--sidebar-width); padding-top: var(--header-height);">
+
+    <!-- Include Header -->
+    <div id="headerContainer"></div>
+
+    <!-- Expenses Content -->
+    <main style="padding: 32px;">
+
+      <!-- Page Header -->
+      <div
+        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Expense Management</h1>
+          <p style="color: var(--gray-600); font-size: 14px;">Track and manage project expenses</p>
+        </div>
+        <button id="createExpenseBtn" class="btn btn-primary" style="display: none;">
+          <span style="font-size: 20px;">+</span>
+          <span>New Expense</span>
+        </button>
+      </div>
+
+      <!-- Stats Cards -->
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px;">
+
+        <!-- Total Expenses Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">
+              💰
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Total Expenses</div>
+              <div id="totalExpensesAmount"
+                style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--primary);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Approval Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: #FEF3C7; color: #F59E0B;">
+              ⏳
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Pending Approval</div>
+              <div id="pendingExpensesAmount"
+                style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: #F59E0B;">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Approved This Month Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--success-light); color: var(--success);">
+              ✓
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Approved Expenses</div>
+              <div id="approvedExpensesAmount"
+                style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--success);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div style="display: grid; grid-template-columns: 1fr auto auto auto auto; gap: 16px; align-items: end;">
+
+          <!-- Search -->
+          <div class="form-group" style="margin: 0;">
+            <label class="form-label">Search Expenses</label>
+            <input type="text" id="searchInput" class="form-input"
+              placeholder="Search by description or bill number...">
+          </div>
+
+          <!-- Project Filter -->
+          <div class="form-group" style="margin: 0; min-width: 180px;">
+            <label class="form-label">Project</label>
+            <select id="projectFilter" class="form-select">
+              <option value="">All Projects</option>
+              <!-- Projects will be loaded dynamically -->
+            </select>
+          </div>
+
+          <!-- Category Filter -->
+          <div class="form-group" style="margin: 0; min-width: 160px;">
+            <label class="form-label">Category</label>
+            <select id="categoryFilter" class="form-select">
+              <option value="">Select Category</option>
+              <option value="MATERIALS">Materials</option>
+              <option value="LABOR">Labor</option>
+              <option value="EQUIPMENT">Equipment</option>
+              <option value="TRANSPORT">Transport</option>
+              <option value="UTILITIES">Utilities</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+
+          <!-- Status Filter -->
+          <div class="form-group" style="margin: 0; min-width: 140px;">
+            <label class="form-label">Status</label>
+            <select id="statusFilter" class="form-select">
+              <option value="">All Status</option>
+              <option value="PENDING">Pending</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="PAID">Paid</option>
+            </select>
+          </div>
+
+          <!-- Clear Filters -->
+          <button id="clearFiltersBtn" class="btn btn-outline">
+            <span>Clear</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Expenses Table -->
+      <div class="card">
+        <div id="loadingState" style="text-align: center; padding: 60px;">
+          <div class="loader loader-lg" style="margin: 0 auto 16px;"></div>
+          <p style="color: var(--gray-600);">Loading expenses...</p>
+        </div>
+
+        <div id="tableContainer" style="display: none;">
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Expense ID</th>
+                  <th>Project</th>
+                  <th>Category</th>
+                  <th>Vendor</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th style="text-align: center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="expensesTableBody">
+                <!-- Rows will be populated here -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div id="paginationContainer" class="pagination" style="display: none;">
+            <!-- Pagination will be populated here -->
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" style="display: none;" class="empty-state">
+          <div class="empty-state-icon">💰</div>
+          <div class="empty-state-text">No expenses found</div>
+          <button id="createFirstExpenseBtn" class="btn btn-primary" style="margin-top: 16px; display: none;">
+            <span>Record Your First Expense</span>
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Include Modal -->
+  <div id="modalContainer"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+  <script src="./js/api-utils.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/role-permission.js"></script>
+  <script src="./js/common.js"></script>
+  <script src="./js/modal.js"></script>
+
+  <script>
+    let currentPage = 0;
+    let totalPages = 0;
+    const itemsPerPage = 5;
+    let currentExpenses = [];
+
+    let currentFilters = {
+      search: '',
+      projectId: '',
+      category: '',
+      status: ''
+    };
+
+    let statsData = {
+      totalExpenses: 0,
+      pendingExpenses: 0,
+      approvedThisMonth: 0
+    };
+
+    // Load components
+    async function loadComponents() {
+      const sidebarRes = await fetch('./components/sidebar.html');
+      document.getElementById('sidebarContainer').innerHTML = await sidebarRes.text();
+
+      const headerRes = await fetch('./components/header.html');
+      document.getElementById('headerContainer').innerHTML = await headerRes.text();
+
+      const modalRes = await fetch('./components/modal.html');
+      document.getElementById('modalContainer').innerHTML = await modalRes.text();
+
+      initSidebar();
+      initHeader();
+
+      setPageTitle('Expense Management', 'Track and manage project expenses');
+      updateUserInfo();
+    }
+
+    // Initialize page
+    async function initExpensesPage() {
+      if (!initializePage('expenses')) return;
+
+      await loadComponents();
+
+      const canCreateExpense = canCreate('expenses');
+      document.getElementById('createExpenseBtn').style.display = canCreateExpense ? 'flex' : 'none';
+      document.getElementById('createFirstExpenseBtn').style.display = canCreateExpense ? 'inline-flex' : 'none';
+
+      setupEventListeners();
+
+      await Promise.all([
+        loadProjects(),
+        loadExpenseStats(),
+        loadExpenses()
+      ]);
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      document.getElementById('createExpenseBtn')?.addEventListener('click', () => {
+        window.location.href = 'expense-form.html';
+      });
+
+      document.getElementById('createFirstExpenseBtn')?.addEventListener('click', () => {
+        window.location.href = 'expense-form.html';
+      });
+
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', debounce(() => {
+        applyFilters();
+      }, 300));
+
+      document.getElementById('projectFilter').addEventListener('change', applyFilters);
+      document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+      document.getElementById('statusFilter').addEventListener('change', applyFilters);
+      document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+    }
+
+    // Load projects for filter
+    async function loadProjects() {
+      try {
+        const data = await apiGet('/projects/name');
+        const projects = data.content || [];
+
+        const projectFilter = document.getElementById('projectFilter');
+        const currentValue = projectFilter.value;
+
+        projectFilter.innerHTML = '<option value="">All Projects</option>' +
+          projects.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+
+        if (currentValue) {
+          projectFilter.value = currentValue;
+        }
+      } catch (error) {
+        console.error('Error loading projects:', error);
+      }
+    }
+
+    // Load expense statistics
+    async function loadExpenseStats() {
+      try {
+        const stats = await apiGet('/expenses/stats');
+        statsData = {
+          totalExpenses: stats.totalExpenses || 0,
+          pendingExpenses: stats.pendingExpenses || 0,
+          approvedThisMonth: stats.approvedExpenses || 0
+        };
+        updateStatsDisplay();
+      } catch (error) {
+        console.error('Error loading expense stats:', error);
+        updateStatsDisplay();
+      }
+    }
+
+    // Update stats display
+    function updateStatsDisplay() {
+      document.getElementById('totalExpensesAmount').textContent = formatCurrency(statsData.totalExpenses);
+      document.getElementById('pendingExpensesAmount').textContent = formatCurrency(statsData.pendingExpenses);
+      document.getElementById('approvedExpensesAmount').textContent = formatCurrency(statsData.approvedThisMonth);
+    }
+
+    // Load expenses with pagination
+    async function loadExpenses(page = 0) {
+      try {
+        showLoader();
+
+        const params = new URLSearchParams({
+          page: page,
+          size: itemsPerPage,
+          sort: 'createdAt,desc'
+        });
+
+        if (currentFilters.search && currentFilters.search.trim() !== '') {
+          params.append('search', currentFilters.search.trim());
+        }
+
+        if (currentFilters.projectId && currentFilters.projectId !== '') {
+          params.append('projectId', currentFilters.projectId);
+        }
+
+        if (currentFilters.category && currentFilters.category !== '') {
+          params.append('category', currentFilters.category);
+        }
+
+        if (currentFilters.status && currentFilters.status !== '') {
+          params.append('status', currentFilters.status);
+        }
+
+        const data = await apiGet(`/expenses?${params.toString()}`);
+
+        currentExpenses = data.content.expenses || [];
+        currentPage = data.content.number || 0;
+        totalPages = data.content.totalPages || 0;
+
+        hideLoader();
+        renderExpenses();
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+        showEmptyState();
+      }
+    }
+
+    // Apply filters
+    function applyFilters() {
+      currentFilters.search = document.getElementById('searchInput').value;
+      currentFilters.projectId = document.getElementById('projectFilter').value;
+      currentFilters.category = document.getElementById('categoryFilter').value;
+      currentFilters.status = document.getElementById('statusFilter').value;
+      loadExpenses(0);
+    }
+
+    // Clear filters
+    function clearFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('projectFilter').value = '';
+      document.getElementById('categoryFilter').value = '';
+      document.getElementById('statusFilter').value = '';
+      currentFilters = { search: '', projectId: '', category: '', status: '' };
+      loadExpenses(0);
+    }
+
+    // Render expenses table
+    function renderExpenses() {
+      const loadingState = document.getElementById('loadingState');
+      const tableContainer = document.getElementById('tableContainer');
+      const emptyState = document.getElementById('emptyState');
+
+      loadingState.style.display = 'none';
+
+      if (currentExpenses.length === 0) {
+        tableContainer.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      tableContainer.style.display = 'block';
+
+      const tbody = document.getElementById('expensesTableBody');
+      tbody.innerHTML = currentExpenses.map(expense => `
+        <tr>
+          <td style="font-family: var(--font-display); font-weight: 600; color: var(--primary);">
+            ${expense.expenseId || '-'}
+          </td>
+          <td>
+            <div style="font-weight: 600;">${escapeHtml(expense.projectName || 'N/A')}</div>
+            ${expense.description ? `<div style="font-size: 12px; color: var(--gray-500);">${truncate(expense.description, 40)}</div>` : ''}
+          </td>
+          <td>
+            <span class="badge badge-outline">${escapeHtml(expense.category)}</span>
+          </td>
+          <td>${escapeHtml(expense.vendorName || '-')}</td>
+          <td style="font-weight: 700; color: var(--gray-900);">
+            ${formatCurrency(expense.amount)}
+          </td>
+          <td style="font-size: 13px; color: var(--gray-600);">
+            ${formatDate(expense.date)}
+          </td>
+          <td>${getStatusBadge(expense.status)}</td>
+          <td>
+            <div style="display: flex; gap: 8px; justify-content: center;">
+              <button onclick="viewExpense('${expense.id}')" class="btn btn-sm btn-outline" title="View Details">
+                👁️
+              </button>
+              ${canEdit('expenses') && expense.status === 'PENDING' ? `
+                <button onclick="editExpense('${expense.id}')" class="btn btn-sm btn-outline" title="Edit">
+                  ✏️
+                </button>
+              ` : ''}
+              ${canDelete('expenses') && expense.status === 'PENDING' ? `
+                <button onclick="deleteExpense('${expense.id}', '${escapeHtml(expense.expenseId)}')" class="btn btn-sm btn-danger" title="Delete">
+                  🗑️
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      renderPagination();
+    }
+
+    // Render pagination
+    function renderPagination() {
+      const container = document.getElementById('paginationContainer');
+
+      if (totalPages <= 1) {
+        container.style.display = 'none';
+        return;
+      }
+
+      container.style.display = 'flex';
+
+      let html = `
+        <button class="pagination-btn" ${currentPage === 0 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+          ← Previous
+        </button>
+      `;
+
+      for (let i = 0; i < totalPages; i++) {
+        if (i === 0 || i === totalPages - 1 || (i >= currentPage - 1 && i <= currentPage + 1)) {
+          html += `
+            <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+              ${i + 1}
+            </button>
+          `;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+          html += '<span style="padding: 8px;">...</span>';
+        }
+      }
+
+      html += `
+        <button class="pagination-btn" ${currentPage === totalPages - 1 ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+          Next →
+        </button>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    // Change page
+    function changePage(page) {
+      if (page < 0 || page >= totalPages) return;
+      loadExpenses(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // View expense details
+    async function viewExpense(expenseId) {
+      try {
+        showLoader();
+        let data = await apiGet(`/expenses/${expenseId}`);
+        const expense = data.content;
+        hideLoader();
+
+        showDetailsModal('Expense Details', {
+          'Expense ID': expense.expenseId,
+          'Project': expense.projectName || '-',
+          'Vendor': expense.vendorName || '-',
+          'Category': expense.category,
+          'Amount': formatCurrency(expense.amount),
+          'Date': formatDate(expense.date),
+          'Description': expense.description || '-',
+          'Bill Number': expense.billNumber || '-',
+          'Status': expense.status,
+          'Created By': expense.createdByName || '-',
+          'Approved By': expense.approvedByName || '-',
+          'Rejected By': expense.rejectedByName || '-',
+          'Rejection Reason': expense.rejectionReason || '-'
+        });
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+
+    // Edit expense
+    function editExpense(expenseId) {
+      window.location.href = `expense-form.html?id=${expenseId}`;
+    }
+
+    // Delete expense
+    async function deleteExpense(expenseId, expenseLabel) {
+      const confirmed = await confirmDialog(
+        `Are you sure you want to delete expense "${expenseLabel}"? This action cannot be undone.`
+      );
+
+      if (!confirmed) return;
+
+      try {
+        showLoader();
+        await apiDelete(`/expenses/${expenseId}`);
+        hideLoader();
+
+        showToast('Expense deleted successfully', 'success');
+
+        await loadExpenseStats();
+
+        if (currentExpenses.length === 1 && currentPage > 0) {
+          loadExpenses(currentPage - 1);
+        } else {
+          loadExpenses(currentPage);
+        }
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+
+    // Show/hide states
+    function showEmptyState() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+    }
+
+    function showLoader() {
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'none';
+    }
+
+    function hideLoader() {
+      document.getElementById('loadingState').style.display = 'none';
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initExpensesPage);
+  </script>
+
+</body>
+
+</html>

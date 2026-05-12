@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARYAM - Payroll Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+
+<body>
+
+  <!-- Include Sidebar -->
+  <div id="sidebarContainer"></div>
+
+  <!-- Main Content -->
+  <div style="margin-left: var(--sidebar-width); padding-top: var(--header-height);">
+
+    <!-- Include Header -->
+    <div id="headerContainer"></div>
+
+    <!-- Payroll Content -->
+    <main style="padding: 32px;">
+
+      <!-- Page Header -->
+      <div
+        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Payroll Management</h1>
+          <p style="color: var(--gray-600); font-size: 14px;">Generate and manage worker salaries</p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button id="generatePayrollBtn" class="btn btn-primary" style="display: none;">
+            <span>🧮</span>
+            <span>Generate Payroll</span>
+          </button>
+          <button id="exportPayrollBtn" class="btn btn-outline" style="display: none;">
+            <span>📊</span>
+            <span>Export All</span>
+          </button>
+          <button id="markAllPaidBtn" class="btn btn-secondary" style="display: none;">
+            <span>💰</span>
+            <span>Mark All Paid</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px;">
+
+        <!-- Total Payroll Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">
+              💰
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Total Payroll</div>
+              <div id="totalPayrollStat"
+                style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--primary);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Payment Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: #FEF3C7; color: #F59E0B;">
+              ⏳
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Pending Payment</div>
+              <div id="pendingPayrollStat"
+                style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: #F59E0B;">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paid This Month Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--success-light); color: var(--success);">
+              ✓
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Paid This Month</div>
+              <div id="paidThisMonthStat"
+                style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--success);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Workers Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--info-light); color: var(--info);">
+              👷
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Total Workers</div>
+              <div id="totalWorkersStat"
+                style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--info);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Filters -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div style="display: grid; grid-template-columns: 1fr auto auto auto auto auto; gap: 16px; align-items: end;">
+
+          <!-- Search -->
+          <div class="form-group" style="margin: 0;">
+            <label class="form-label">Search Workers</label>
+            <input type="text" id="searchInput" class="form-input" placeholder="Search by worker name or payroll ID...">
+          </div>
+
+          <!-- Project Filter -->
+          <div class="form-group" style="margin: 0; min-width: 180px;">
+            <label class="form-label">Project</label>
+            <select id="projectFilter" class="form-select">
+              <option value="">All Projects</option>
+              <!-- Projects will be loaded dynamically -->
+            </select>
+          </div>
+
+          <!-- Month Filter -->
+          <div class="form-group" style="margin: 0; min-width: 120px;">
+            <label class="form-label">Month</label>
+            <select id="monthFilter" class="form-select">
+              <option value="">All Months</option>
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+          </div>
+
+          <!-- Year Filter -->
+          <div class="form-group" style="margin: 0; min-width: 100px;">
+            <label class="form-label">Year</label>
+            <select id="yearFilter" class="form-select">
+              <option value="">All Years</option>
+              <!-- Years will be populated dynamically -->
+            </select>
+          </div>
+
+          <!-- Status Filter -->
+          <div class="form-group" style="margin: 0; min-width: 130px;">
+            <label class="form-label">Status</label>
+            <select id="statusFilter" class="form-select">
+              <option value="">All Status</option>
+              <option value="PENDING">Pending</option>
+              <option value="PAID">Paid</option>
+            </select>
+          </div>
+
+          <!-- Clear Filters -->
+          <button id="clearFiltersBtn" class="btn btn-outline">
+            <span>Clear</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Payroll Table -->
+      <div class="card">
+        <div id="loadingState" style="text-align: center; padding: 60px;">
+          <div class="loader loader-lg" style="margin: 0 auto 16px;"></div>
+          <p style="color: var(--gray-600);">Loading payroll records...</p>
+        </div>
+
+        <div id="tableContainer" style="display: none;">
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Payroll ID</th>
+                  <th>Worker Name</th>
+                  <th>Project</th>
+                  <th>Period</th>
+                  <th>Days Present</th>
+                  <th>Basic Salary</th>
+                  <th>Overtime</th>
+                  <th>Total Amount</th>
+                  <th>Status</th>
+                  <th style="text-align: center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="payrollTableBody">
+                <!-- Rows will be populated here -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div id="paginationContainer" class="pagination" style="display: none;">
+            <!-- Pagination will be populated here -->
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" style="display: none;" class="empty-state">
+          <div class="empty-state-icon">💵</div>
+          <div class="empty-state-text">No payroll records found</div>
+          <p style="color: var(--gray-500); font-size: 14px; margin-top: 8px;">Generate payroll for a project to get
+            started.</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Include Modal -->
+  <div id="modalContainer"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+  <script src="./js/api-utils.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/role-permission.js"></script>
+  <script src="./js/common.js"></script>
+  <script src="./js/modal.js"></script>
+
+  <script>
+    let currentPage = 0;
+    let totalPages = 0;
+    const itemsPerPage = 5;
+    let currentPayrolls = [];
+
+    let currentFilters = {
+      search: '',
+      projectId: '',
+      month: '',
+      year: '',
+      status: ''
+    };
+
+    let statsData = {
+      totalPayroll: 0,
+      pendingPayroll: 0,
+      paidThisMonth: 0,
+      totalWorkers: 0
+    };
+
+    // Load components
+    async function loadComponents() {
+      const sidebarRes = await fetch('./components/sidebar.html');
+      document.getElementById('sidebarContainer').innerHTML = await sidebarRes.text();
+
+      const headerRes = await fetch('./components/header.html');
+      document.getElementById('headerContainer').innerHTML = await headerRes.text();
+
+      const modalRes = await fetch('./components/modal.html');
+      document.getElementById('modalContainer').innerHTML = await modalRes.text();
+
+      initSidebar();
+      initHeader();
+
+      setPageTitle('Payroll Management', 'Generate and manage worker salaries');
+      updateUserInfo();
+    }
+
+    // Initialize page
+    async function initPayrollPage() {
+      if (!initializePage('payroll')) return;
+
+      await loadComponents();
+
+      // Show/hide buttons based on permission
+      const canGeneratePayroll = hasPermission('payroll', 'generate');
+      document.getElementById('generatePayrollBtn').style.display = canGeneratePayroll ? 'flex' : 'none';
+
+      // Show/hide Mark All Paid button based on permission
+      if (hasPermission('payroll', 'approve')) {
+        document.getElementById('markAllPaidBtn').style.display = 'flex';
+      }
+      // Show/hide export button based on permission
+      if (hasPermission('payroll', 'export')) {
+        document.getElementById('exportPayrollBtn').style.display = 'flex';
+      }
+
+      setupEventListeners();
+      populateYears();
+
+
+      await Promise.all([
+        loadProjects(),
+        loadPayrollStats(),
+        loadPayrolls()
+      ]);
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', debounce(() => {
+        applyFilters();
+      }, 300));
+
+      document.getElementById('projectFilter').addEventListener('change', applyFilters);
+      document.getElementById('monthFilter').addEventListener('change', applyFilters);
+      document.getElementById('yearFilter').addEventListener('change', applyFilters);
+      document.getElementById('statusFilter').addEventListener('change', applyFilters);
+      document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+
+      document.getElementById('generatePayrollBtn')?.addEventListener('click', openGeneratePayrollModal);
+      document.getElementById('markAllPaidBtn')?.addEventListener('click', markAllPaid);
+      document.getElementById('exportPayrollBtn')?.addEventListener('click', exportPayroll);
+    }
+
+    // Export payroll
+    async function exportPayroll() {
+      const projects = await apiGet('/projects/name').then(d => d.content).catch(() => []);
+
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+
+      const fields = [
+        {
+          type: 'select',
+          name: 'projectId',
+          label: 'Project',
+          required: true,
+          options: projects.map(p => ({ value: p.id, label: p.name }))
+        },
+        {
+          type: 'select',
+          name: 'month',
+          label: 'Month',
+          required: true,
+          value: currentMonth,
+          options: [
+            { value: '-1', label: 'All' },
+            { value: '1', label: 'January' },
+            { value: '2', label: 'February' },
+            { value: '3', label: 'March' },
+            { value: '4', label: 'April' },
+            { value: '5', label: 'May' },
+            { value: '6', label: 'June' },
+            { value: '7', label: 'July' },
+            { value: '8', label: 'August' },
+            { value: '9', label: 'September' },
+            { value: '10', label: 'October' },
+            { value: '11', label: 'November' },
+            { value: '12', label: 'December' }
+          ]
+        },
+        {
+          type: 'number',
+          name: 'year',
+          label: 'Year',
+          required: true,
+          value: currentYear,
+          min: 2020,
+          max: 2030
+        }
+      ];
+
+      showFormModal('Export Payroll', fields, async (data) => {
+        try {
+          showLoader();
+          await apiExportCSV(`/payroll/export?projectId=${data.projectId}&month=${data.month}&year=${data.year}`, `payroll-${data.year}.csv`);
+          hideLoader();
+          showToast('Payroll exported successfully!', 'success');
+        } catch (error) {
+          hideLoader();
+          handleApiError(error);
+        }
+      });
+    }
+
+    // Populate years dropdown
+    function populateYears() {
+      const currentYear = new Date().getFullYear();
+      const yearFilter = document.getElementById('yearFilter');
+
+      for (let i = 0; i < 5; i++) {
+        const year = currentYear - i;
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearFilter.appendChild(option);
+      }
+    }
+
+    // Load projects for filter
+    async function loadProjects() {
+      try {
+        const data = await apiGet('/projects/name');
+        const projects = data.content || [];
+
+        const projectFilter = document.getElementById('projectFilter');
+        const currentValue = projectFilter.value;
+
+        projectFilter.innerHTML = '<option value="">All Projects</option>' +
+          projects.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+
+        if (currentValue) {
+          projectFilter.value = currentValue;
+        }
+      } catch (error) {
+        console.error('Error loading projects:', error);
+      }
+    }
+
+    // Load payroll statistics
+    async function loadPayrollStats() {
+      try {
+        const stats = await apiGet('/payroll/stats');
+        statsData = {
+          totalPayroll: stats.totalAmount || 0,
+          pendingPayroll: stats.pendingAmount || 0,
+          paidThisMonth: stats.paidThisMonthAmount || 0,
+          totalWorkers: stats.totalDistinctWorkers || 0
+        };
+        updateStatsDisplay();
+      } catch (error) {
+        console.error('Error loading payroll stats:', error);
+        updateStatsDisplay();
+      }
+    }
+
+    // Update stats display
+    function updateStatsDisplay() {
+      document.getElementById('totalPayrollStat').textContent = formatCurrency(statsData.totalPayroll);
+      document.getElementById('pendingPayrollStat').textContent = formatCurrency(statsData.pendingPayroll);
+      document.getElementById('paidThisMonthStat').textContent = formatCurrency(statsData.paidThisMonth);
+      document.getElementById('totalWorkersStat').textContent = statsData.totalWorkers;
+    }
+
+    // Load payrolls with pagination
+    async function loadPayrolls(page = 0) {
+      try {
+        showLoader();
+
+        const params = new URLSearchParams({
+          page: page,
+          size: itemsPerPage,
+          sort: 'createdAt,desc'
+        });
+
+        if (currentFilters.search && currentFilters.search.trim() !== '') {
+          params.append('search', currentFilters.search.trim());
+        }
+
+        if (currentFilters.projectId && currentFilters.projectId !== '') {
+          params.append('projectId', currentFilters.projectId);
+        }
+
+        if (currentFilters.month && currentFilters.month !== '') {
+          params.append('month', currentFilters.month);
+        }
+
+        if (currentFilters.year && currentFilters.year !== '') {
+          params.append('year', currentFilters.year);
+        }
+
+        if (currentFilters.status && currentFilters.status !== '') {
+          params.append('status', currentFilters.status);
+        }
+
+        const data = await apiGet(`/payroll?${params.toString()}`);
+
+        currentPayrolls = data.content.payrolls || [];
+        currentPage = data.content.number || 0;
+        totalPages = data.content.totalPages || 0;
+
+        hideLoader();
+        renderPayrolls();
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+        showEmptyState();
+      }
+    }
+
+    // Apply filters
+    function applyFilters() {
+      currentFilters.search = document.getElementById('searchInput').value;
+      currentFilters.projectId = document.getElementById('projectFilter').value;
+      currentFilters.month = document.getElementById('monthFilter').value;
+      currentFilters.year = document.getElementById('yearFilter').value;
+      currentFilters.status = document.getElementById('statusFilter').value;
+      loadPayrolls(0);
+    }
+
+    // Clear filters
+    function clearFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('projectFilter').value = '';
+      document.getElementById('monthFilter').value = '';
+      document.getElementById('yearFilter').value = '';
+      document.getElementById('statusFilter').value = '';
+      currentFilters = { search: '', projectId: '', month: '', year: '', status: '' };
+      loadPayrolls(0);
+    }
+
+    // Get month name
+    function getMonthName(month) {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return months[month - 1] || '';
+    }
+
+    // Render payrolls table
+    function renderPayrolls() {
+      const loadingState = document.getElementById('loadingState');
+      const tableContainer = document.getElementById('tableContainer');
+      const emptyState = document.getElementById('emptyState');
+
+      loadingState.style.display = 'none';
+
+      if (currentPayrolls.length === 0) {
+        tableContainer.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      tableContainer.style.display = 'block';
+
+      const tbody = document.getElementById('payrollTableBody');
+      tbody.innerHTML = currentPayrolls.map(payroll => `
+        <tr>
+          <td style="font-family: var(--font-display); font-weight: 600; color: var(--primary);">
+            ${payroll.payrollId || '-'}
+          </td>
+          <td>
+            <div style="font-weight: 600;">${escapeHtml(payroll.laborName || 'N/A')}</div>
+            ${payroll.laborId ? `<div style="font-size: 12px; color: var(--gray-500);">${payroll.laborId}</div>` : ''}
+          </td>
+          <td>${escapeHtml(payroll.projectName || 'N/A')}</td>
+          <td>
+            <span class="badge badge-outline">${getMonthName(payroll.month)} ${payroll.year}</span>
+          </td>
+          <td style="text-align: center; font-weight: 600;">${payroll.daysPresent || 0}</td>
+          <td style="font-weight: 600;">${formatCurrency(payroll.basicSalary || 0)}</td>
+          <td style="color: var(--success); font-weight: 600;">${formatCurrency(payroll.overtimeAmount || 0)}</td>
+          <td style="font-weight: 700; color: var(--gray-900); font-size: 15px;">
+            ${formatCurrency(payroll.totalAmount || 0)}
+          </td>
+          <td>${getStatusBadge(payroll.status)}</td>
+          <td>
+            <div style="display: flex; gap: 8px; justify-content: center;">
+              <button onclick="viewPayrollDetails('${payroll.id}')" class="btn btn-sm btn-outline" title="View Details">
+                👁️
+              </button>
+              ${hasPermission('payroll', 'approve') && payroll.status === 'PENDING' ? `
+                <button onclick="markPaid('${payroll.id}', '${escapeHtml(payroll.laborName)}')" class="btn btn-sm btn-secondary" title="Mark as Paid">
+                  💰
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      renderPagination();
+    }
+
+    // Render pagination
+    function renderPagination() {
+      const container = document.getElementById('paginationContainer');
+
+      if (totalPages <= 1) {
+        container.style.display = 'none';
+        return;
+      }
+
+      container.style.display = 'flex';
+
+      let html = `
+        <button class="pagination-btn" ${currentPage === 0 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+          ← Previous
+        </button>
+      `;
+
+      for (let i = 0; i < totalPages; i++) {
+        if (i === 0 || i === totalPages - 1 || (i >= currentPage - 1 && i <= currentPage + 1)) {
+          html += `
+            <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+              ${i + 1}
+            </button>
+          `;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+          html += '<span style="padding: 8px;">...</span>';
+        }
+      }
+
+      html += `
+        <button class="pagination-btn" ${currentPage === totalPages - 1 ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+          Next →
+        </button>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    // Change page
+    function changePage(page) {
+      if (page < 0 || page >= totalPages) return;
+      loadPayrolls(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Open generate payroll modal
+    async function openGeneratePayrollModal() {
+      const projects = await apiGet('/projects/name').then(d => d.content).catch(() => []);
+
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+
+      const fields = [
+        {
+          type: 'select',
+          name: 'projectId',
+          label: 'Project',
+          required: true,
+          options: projects.map(p => ({ value: p.id, label: p.name }))
+        },
+        {
+          type: 'select',
+          name: 'month',
+          label: 'Month',
+          required: true,
+          value: currentMonth,
+          options: [
+            { value: '1', label: 'January' },
+            { value: '2', label: 'February' },
+            { value: '3', label: 'March' },
+            { value: '4', label: 'April' },
+            { value: '5', label: 'May' },
+            { value: '6', label: 'June' },
+            { value: '7', label: 'July' },
+            { value: '8', label: 'August' },
+            { value: '9', label: 'September' },
+            { value: '10', label: 'October' },
+            { value: '11', label: 'November' },
+            { value: '12', label: 'December' }
+          ]
+        },
+        {
+          type: 'number',
+          name: 'year',
+          label: 'Year',
+          required: true,
+          value: currentYear,
+          min: 2020,
+          max: 2030
+        }
+      ];
+
+      showFormModal('Generate Payroll', fields, async (data) => {
+        await generatePayroll(data.projectId, data.month, data.year);
+      });
+    }
+
+    // Generate payroll
+    async function generatePayroll(projectId, month, year) {
+      try {
+        showLoader();
+        const result = await apiPost(`/payroll/generate/${projectId}?month=${month}&year=${year}`, {});
+        hideLoader();
+
+        showToast(`Payroll generated successfully! ${result.content.count || 0} records created.`, 'success');
+
+        await loadPayrollStats();
+        loadPayrolls(0);
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+
+    // View payroll details
+    async function viewPayrollDetails(payrollId) {
+      try {
+        showLoader();
+        let data = await apiGet(`/payroll/${payrollId}`);
+        const payroll = data.content;
+        hideLoader();
+
+        showDetailsModal('Payroll Details', {
+          'Payroll ID': payroll.payrollId,
+          'Worker Name': payroll.laborName,
+          'Labor ID': payroll.laborId || '-',
+          'Project': payroll.projectName,
+          'Period': `${getMonthName(payroll.month)} ${payroll.year}`,
+          'Days Present': payroll.daysPresent,
+          'Daily Wage': formatCurrency(payroll.dailyWage),
+          'Basic Salary': formatCurrency(payroll.basicSalary),
+          'Overtime Hours': payroll.overtimeHours || 0,
+          'Overtime Amount': formatCurrency(payroll.overtimeAmount || 0),
+          'Bonuses': formatCurrency(payroll.bonuses || 0),
+          'Deductions': formatCurrency(payroll.deductions || 0),
+          'Total Amount': formatCurrency(payroll.totalAmount),
+          'Status': payroll.status,
+          'Generated By': payroll.generatedByName || '-',
+          'Generated At': formatDate(payroll.generatedAt),
+          'Paid At': payroll.paidAt ? formatDate(payroll.paidAt) : '-',
+          'Payment Method': payroll.paymentMethod || '-'
+        });
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+
+    // Mark individual as paid
+    async function markPaid(payrollId, laborName) {
+
+      const cash = 'CASH';
+      const fields = [
+        {
+          type: 'select',
+          name: 'payment_method',
+          label: 'Payment Method',
+          required: true,
+          value: cash,
+          options: [
+            { value: 'CASH', label: 'Cash' },
+            { value: 'UPI', label: 'UPI' },
+            { value: 'BANK TRANSFER', label: 'Bank Transfer' },
+            { value: 'OTHER', label: 'Other' }
+          ]
+        }
+      ];
+
+      showFormModal(`Mark payroll for ${laborName} as paid?`, fields, async (data) => {
+        try {
+          showLoader();
+          await apiPost(`/payroll/${payrollId}/mark-paid`, {
+            paidAt: new Date().toISOString(),
+            paymentMethod: data.payment_method
+          });
+          hideLoader();
+
+          showToast('Payroll marked as paid!', 'success');
+
+          await loadPayrollStats();
+
+          if (currentPayrolls.length === 1 && currentPage > 0) {
+            loadPayrolls(currentPage - 1);
+          } else {
+            loadPayrolls(currentPage);
+          }
+        } catch (error) {
+          hideLoader();
+          handleApiError(error);
+        }
+      });
+    }
+
+    // Mark all paid
+    async function markAllPaid() {
+      // Ask for project, month, year
+      const projects = await apiGet('/projects/name').then(d => d.content).catch(() => []);
+
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+
+      const fields = [
+        {
+          type: 'select',
+          name: 'projectId',
+          label: 'Project',
+          required: true,
+          options: projects.map(p => ({ value: p.id, label: p.name }))
+        },
+        {
+          type: 'select',
+          name: 'month',
+          label: 'Month',
+          required: true,
+          value: currentMonth,
+          options: [
+            { value: '1', label: 'January' },
+            { value: '2', label: 'February' },
+            { value: '3', label: 'March' },
+            { value: '4', label: 'April' },
+            { value: '5', label: 'May' },
+            { value: '6', label: 'June' },
+            { value: '7', label: 'July' },
+            { value: '8', label: 'August' },
+            { value: '9', label: 'September' },
+            { value: '10', label: 'October' },
+            { value: '11', label: 'November' },
+            { value: '12', label: 'December' }
+          ]
+        },
+        {
+          type: 'number',
+          name: 'year',
+          label: 'Year',
+          required: true,
+          value: currentYear,
+          min: 2020,
+          max: 2030
+        },
+        {
+          type: 'select',
+          name: 'paymentMethod',
+          label: 'Payment Method',
+          required: true,
+          options: [
+            { value: 'CASH', label: 'Cash' },
+            { value: 'UPI', label: 'UPI' },
+            { value: 'BANK TRANSFER', label: 'Bank Transfer' },
+            { value: 'OTHER', label: 'Other' }
+          ]
+        }
+      ];
+
+      showFormModal('Mark All Paid', fields, async (data) => {
+        try {
+          showLoader();
+          let resultData = await apiPost('/payroll/mark-all-paid', {
+            projectId: data.projectId,
+            month: parseInt(data.month),
+            year: parseInt(data.year),
+            paymentMethod: data.paymentMethod,
+            paidAt: new Date().toISOString()
+          });
+          hideLoader();
+
+          const result = resultData.content;
+
+          showToast(`${result.count[0] || 0} payroll records marked as paid, Total Amount Rs${result.count[1] || 0}!`, 'success');
+
+          await loadPayrollStats();
+          loadPayrolls(currentPage);
+        } catch (error) {
+          hideLoader();
+          handleApiError(error);
+        }
+      });
+    }
+
+    // Show/hide states
+    function showEmptyState() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+    }
+
+    function showLoader() {
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'none';
+    }
+
+    function hideLoader() {
+      document.getElementById('loadingState').style.display = 'none';
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initPayrollPage);
+  </script>
+
+</body>
+
+</html>

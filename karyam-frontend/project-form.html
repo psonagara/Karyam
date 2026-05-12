@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARYAM - Project Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body>
+  
+  <!-- Include Sidebar -->
+  <div id="sidebarContainer"></div>
+  
+  <!-- Main Content -->
+  <div style="margin-left: var(--sidebar-width); padding-top: var(--header-height);">
+    
+    <!-- Include Header -->
+    <div id="headerContainer"></div>
+    
+    <!-- Form Content -->
+    <main style="padding: 32px;">
+      
+      <!-- Page Header -->
+      <div style="margin-bottom: 32px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+          <a href="projects.html" style="color: var(--gray-600); text-decoration: none; font-size: 20px;" title="Back to Projects">
+            ←
+          </a>
+          <h1 id="pageTitleDown" style="font-size: 2rem; font-weight: 800;">New Project</h1>
+        </div>
+        <p style="color: var(--gray-600); font-size: 14px; margin-left: 32px;">Fill in the project details</p>
+      </div>
+      
+      <!-- Project Form -->
+      <div class="card" style="max-width: 900px;">
+        <form id="projectForm">
+          
+          <!-- Basic Information -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Basic Information
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              
+              <div class="form-group">
+                <label class="form-label">Project Name *</label>
+                <input type="text" id="projectName" name="name" class="form-input" placeholder="Enter project name" required>
+                <div class="form-error" id="nameError"></div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Project ID</label>
+                <input type="text" id="projectId" name="projectId" class="form-input" placeholder="Auto-generated" readonly style="background: var(--gray-100); cursor: not-allowed;">
+              </div>
+              
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">Location *</label>
+                <input type="text" id="location" name="location" class="form-input" placeholder="Project site location" required>
+                <div class="form-error" id="locationError"></div>
+              </div>
+              
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">Description</label>
+                <textarea id="description" name="description" class="form-input" rows="4" placeholder="Brief description of the project..."></textarea>
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Financial Details -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Financial Details
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              
+              <div class="form-group">
+                <label class="form-label">Total Budget (₹) *</label>
+                <input type="number" id="budget" name="budget" class="form-input" placeholder="0" min="0" step="1000" required>
+                <div class="form-error" id="budgetError"></div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Currency</label>
+                <select id="currency" name="currency" class="form-select">
+                  <option value="INR" selected>Indian Rupee (INR)</option>
+                  <option value="USD">US Dollar (USD)</option>
+                  <option value="EUR">Euro (EUR)</option>
+                </select>
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Project Timeline -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Project Timeline
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              
+              <div class="form-group">
+                <label class="form-label">Start Date *</label>
+                <input type="date" id="startDate" name="startDate" class="form-input" required>
+                <div class="form-error" id="startDateError"></div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Expected End Date</label>
+                <input type="date" id="endDate" name="endDate" class="form-input">
+                <div class="form-error" id="endDateError"></div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Management -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Management
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              
+              <div class="form-group">
+                <label class="form-label">Project Manager *</label>
+                <input type="text" id="manager" name="manager" class="form-input" placeholder="Manager name" required>
+                <div class="form-error" id="managerError"></div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Project Status *</label>
+                <select id="status" name="status" class="form-select" required>
+                  <option value="PENDING">Pending</option>
+                  <option value="ACTIVE" selected>Active</option>
+                  <option value="ON_HOLD">On Hold</option>
+                  <option value="COMPLETED">Completed</option>
+                </select>
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Contact Information -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Contact Information (Optional)
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              
+              <div class="form-group">
+                <label class="form-label">Contact Person</label>
+                <input type="text" id="contactPerson" name="contactPerson" class="form-input" placeholder="Contact person name">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Contact Phone</label>
+                <input type="tel" id="contactPhone" name="contactPhone" class="form-input" placeholder="Phone number" pattern="[0-9]{10}">
+                <div class="form-error" id="contactPhoneError"></div>
+              </div>
+              
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">Contact Email</label>
+                <input type="email" id="contactEmail" name="contactEmail" class="form-input" placeholder="email@example.com">
+                <div class="form-error" id="contactEmailError"></div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Form Actions -->
+          <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 24px; border-top: 1px solid var(--gray-200);">
+            <a href="projects.html" class="btn btn-outline">
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-primary btn-lg">
+              <span id="submitBtnText">Save Project</span>
+              <span id="submitLoader" class="loader" style="display: none;"></span>
+            </button>
+          </div>
+          
+        </form>
+      </div>
+      
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+  <script src="./js/api-utils.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/role-permission.js"></script>
+  <script src="./js/common.js"></script>
+  
+  <script>
+    let isEditMode = false;
+    let projectId = null;
+    
+    // Load components
+    async function loadComponents() {
+      const sidebarRes = await fetch('./components/sidebar.html');
+      document.getElementById('sidebarContainer').innerHTML = await sidebarRes.text();
+      
+      const headerRes = await fetch('./components/header.html');
+      document.getElementById('headerContainer').innerHTML = await headerRes.text();
+
+      initSidebar();
+      initHeader();
+      
+      updateUserInfo();
+    }
+    
+    // Initialize page
+    async function initProjectForm() {
+      if (!initializePage('projects')) return;
+      
+      // Check if user can create/edit
+      const urlParams = new URLSearchParams(window.location.search);
+      projectId = urlParams.get('id');
+      isEditMode = !!projectId;
+      
+      if (isEditMode && !canEdit('projects')) {
+        window.location.href = 'access-denied.html';
+        return;
+      }
+      
+      if (!isEditMode && !canCreate('projects')) {
+        window.location.href = 'access-denied.html';
+        return;
+      }
+      
+      await loadComponents();
+      
+      // Set page title
+      if (isEditMode) {
+        document.getElementById('pageTitle').textContent = 'Edit Project';
+        setPageTitle('Edit Project', 'Update project information');
+        document.getElementById('submitBtnText').textContent = 'Update Project';
+      } else {
+        setPageTitle('New Project', 'Create a new construction project');
+      }
+      
+      // Setup form
+      setupForm();
+      
+      // Load project data if editing
+      if (isEditMode) {
+        await loadProjectData();
+      }
+    }
+    
+    // Setup form
+    function setupForm() {
+      const form = document.getElementById('projectForm');
+      
+      form.addEventListener('submit', handleSubmit);
+      
+      // Date validation
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      
+      startDateInput.addEventListener('change', () => {
+        if (endDateInput.value && startDateInput.value > endDateInput.value) {
+          document.getElementById('startDateError').textContent = 'Start date cannot be after end date';
+        } else {
+          document.getElementById('startDateError').textContent = '';
+        }
+      });
+      
+      endDateInput.addEventListener('change', () => {
+        if (startDateInput.value && endDateInput.value < startDateInput.value) {
+          document.getElementById('endDateError').textContent = 'End date cannot be before start date';
+        } else {
+          document.getElementById('endDateError').textContent = '';
+        }
+      });
+      
+      // Phone validation
+      const phoneInput = document.getElementById('contactPhone');
+      phoneInput.addEventListener('input', () => {
+        const value = phoneInput.value;
+        if (value && !isValidPhone(value)) {
+          document.getElementById('contactPhoneError').textContent = 'Please enter a valid 10-digit phone number';
+        } else {
+          document.getElementById('contactPhoneError').textContent = '';
+        }
+      });
+      
+      // Email validation
+      const emailInput = document.getElementById('contactEmail');
+      emailInput.addEventListener('input', () => {
+        const value = emailInput.value;
+        if (value && !isValidEmail(value)) {
+          document.getElementById('contactEmailError').textContent = 'Please enter a valid email address';
+        } else {
+          document.getElementById('contactEmailError').textContent = '';
+        }
+      });
+    }
+    
+    // Load project data for editing
+    async function loadProjectData() {
+      try {
+        showLoader();
+        let data = await apiGet(`/projects/${projectId}`);
+        const project = data.content;
+        hideLoader();
+        
+        // Populate form
+        document.getElementById('pageTitleDown').textContent = project.name || '';
+        document.getElementById('projectName').value = project.name || '';
+        document.getElementById('projectId').value = project.projectId || '';
+        document.getElementById('location').value = project.location || '';
+        document.getElementById('description').value = project.description || '';
+        document.getElementById('budget').value = project.budget || '';
+        document.getElementById('currency').value = project.currency || 'INR';
+        document.getElementById('startDate').value = project.startDate ? project.startDate.split('T')[0] : '';
+        document.getElementById('endDate').value = project.endDate ? project.endDate.split('T')[0] : '';
+        document.getElementById('manager').value = project.manager || '';
+        document.getElementById('status').value = project.status || 'ACTIVE';
+        document.getElementById('contactPerson').value = project.contactPerson || '';
+        document.getElementById('contactPhone').value = project.contactPhone || '';
+        document.getElementById('contactEmail').value = project.contactEmail || '';
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+        setTimeout(() => {
+          window.location.href = 'projects.html';
+        }, 2000);
+      }
+    }
+    
+    // Validate form
+    function validateForm() {
+      let isValid = true;
+      
+      // Clear previous errors
+      document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+      
+      // Project name
+      const name = document.getElementById('projectName').value.trim();
+      if (!name) {
+        document.getElementById('nameError').textContent = 'Project name is required';
+        isValid = false;
+      }
+      
+      // Location
+      const location = document.getElementById('location').value.trim();
+      if (!location) {
+        document.getElementById('locationError').textContent = 'Location is required';
+        isValid = false;
+      }
+      
+      // Budget
+      const budget = document.getElementById('budget').value;
+      if (!budget || budget <= 0) {
+        document.getElementById('budgetError').textContent = 'Valid budget is required';
+        isValid = false;
+      }
+      
+      // Start date
+      const startDate = document.getElementById('startDate').value;
+      if (!startDate) {
+        document.getElementById('startDateError').textContent = 'Start date is required';
+        isValid = false;
+      }
+      
+      // End date validation
+      const endDate = document.getElementById('endDate').value;
+      if (startDate && endDate && startDate > endDate) {
+        document.getElementById('endDateError').textContent = 'End date must be after start date';
+        isValid = false;
+      }
+      
+      // Manager
+      const manager = document.getElementById('manager').value.trim();
+      if (!manager) {
+        document.getElementById('managerError').textContent = 'Project manager is required';
+        isValid = false;
+      }
+      
+      // Phone
+      const phone = document.getElementById('contactPhone').value;
+      if (phone && !isValidPhone(phone)) {
+        document.getElementById('contactPhoneError').textContent = 'Invalid phone number';
+        isValid = false;
+      }
+      
+      // Email
+      const email = document.getElementById('contactEmail').value;
+      if (email && !isValidEmail(email)) {
+        document.getElementById('contactEmailError').textContent = 'Invalid email address';
+        isValid = false;
+      }
+      
+      return isValid;
+    }
+    
+    // Handle form submission
+    async function handleSubmit(e) {
+      e.preventDefault();
+      
+      if (!validateForm()) {
+        showToast('Please fix the errors in the form', 'error');
+        return;
+      }
+      
+      const formData = {
+        name: document.getElementById('projectName').value.trim(),
+        location: document.getElementById('location').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        budget: parseFloat(document.getElementById('budget').value),
+        currency: document.getElementById('currency').value,
+        startDate: document.getElementById('startDate').value,
+        endDate: document.getElementById('endDate').value || null,
+        manager: document.getElementById('manager').value.trim(),
+        status: document.getElementById('status').value,
+        contactPerson: document.getElementById('contactPerson').value.trim() || null,
+        contactPhone: document.getElementById('contactPhone').value.trim() || null,
+        contactEmail: document.getElementById('contactEmail').value.trim() || null
+      };
+      
+      // Show loading
+      const submitText = document.getElementById('submitBtnText');
+      const submitLoader = document.getElementById('submitLoader');
+      submitText.style.display = 'none';
+      submitLoader.style.display = 'inline-block';
+      
+      try {
+        if (isEditMode) {
+          await apiPut(`/projects/${projectId}`, formData);
+          showToast('Project updated successfully!', 'success');
+        } else {
+          await apiPost('/projects', formData);
+          showToast('Project created successfully!', 'success');
+        }
+        
+        setTimeout(() => {
+          window.location.href = 'projects.html';
+        }, 1500);
+      } catch (error) {
+        handleApiError(error);
+      } finally {
+        submitText.style.display = 'inline';
+        submitLoader.style.display = 'none';
+      }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initProjectForm);
+  </script>
+  
+</body>
+</html>

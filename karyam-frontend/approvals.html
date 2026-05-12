@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARYAM - Approvals</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body>
+  
+  <!-- Include Sidebar -->
+  <div id="sidebarContainer"></div>
+  
+  <!-- Main Content -->
+  <div style="margin-left: var(--sidebar-width); padding-top: var(--header-height);">
+    
+    <!-- Include Header -->
+    <div id="headerContainer"></div>
+    
+    <!-- Approvals Content -->
+    <main style="padding: 32px;">
+      
+      <!-- Page Header -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Approval Workflow</h1>
+          <p style="color: var(--gray-600); font-size: 14px;">Review and approve pending expenses</p>
+        </div>
+      </div>
+      
+      <!-- Stats Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px;">
+        
+        <!-- Pending Approvals Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: #FEF3C7; color: #F59E0B;">
+              ⏳
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Pending Approvals</div>
+              <div id="pendingCountStat" style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: #F59E0B;">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Pending Amount Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">
+              💰
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Pending Amount</div>
+              <div id="pendingAmountStat" style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--primary);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Approved Today Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--success-light); color: var(--success);">
+              ✓
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Approved Today</div>
+              <div id="approvedTodayStat" style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--success);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Rejected Today Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--danger-light); color: var(--danger);">
+              ✕
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Rejected Today</div>
+              <div id="rejectedTodayStat" style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--danger);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+      <!-- Filters -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div style="display: grid; grid-template-columns: 1fr auto auto auto; gap: 16px; align-items: end;">
+          
+          <!-- Search -->
+          <div class="form-group" style="margin: 0;">
+            <label class="form-label">Search Approvals</label>
+            <input type="text" id="searchInput" class="form-input" placeholder="Search by project, expense ID, or description...">
+          </div>
+          
+          <!-- Project Filter -->
+          <div class="form-group" style="margin: 0; min-width: 180px;">
+            <label class="form-label">Project</label>
+            <select id="projectFilter" class="form-select">
+              <option value="">All Projects</option>
+              <!-- Projects will be loaded dynamically -->
+            </select>
+          </div>
+          
+          <!-- Sort -->
+          <div class="form-group" style="margin: 0; min-width: 160px;">
+            <label class="form-label">Sort By</label>
+            <select id="sortFilter" class="form-select">
+              <option value="createdAt,desc">Newest First</option>
+              <option value="createdAt,asc">Oldest First</option>
+              <option value="amount,desc">Highest Amount</option>
+              <option value="amount,asc">Lowest Amount</option>
+            </select>
+          </div>
+          
+          <!-- Clear Filters -->
+          <button id="clearFiltersBtn" class="btn btn-outline">
+            <span>Clear</span>
+          </button>
+          
+        </div>
+      </div>
+      
+      <!-- Approvals Table -->
+      <div class="card">
+        <div id="loadingState" style="text-align: center; padding: 60px;">
+          <div class="loader loader-lg" style="margin: 0 auto 16px;"></div>
+          <p style="color: var(--gray-600);">Loading pending approvals...</p>
+        </div>
+        
+        <div id="tableContainer" style="display: none;">
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Expense ID</th>
+                  <th>Project</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                  <th>Requested By</th>
+                  <th>Request Date</th>
+                  <th>Days Pending</th>
+                  <th style="text-align: center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="approvalsTableBody">
+                <!-- Rows will be populated here -->
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Pagination -->
+          <div id="paginationContainer" class="pagination" style="display: none;">
+            <!-- Pagination will be populated here -->
+          </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div id="emptyState" style="display: none;" class="empty-state">
+          <div class="empty-state-icon">✅</div>
+          <div class="empty-state-text">No pending approvals</div>
+          <p style="color: var(--gray-500); font-size: 14px; margin-top: 8px;">All caught up! No expenses waiting for approval.</p>
+        </div>
+      </div>
+      
+    </main>
+  </div>
+
+  <!-- Include Modal -->
+  <div id="modalContainer"></div>
+
+  <!-- Scripts -->
+   <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+  <script src="./js/api-utils.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/role-permission.js"></script>
+  <script src="./js/common.js"></script>
+  <script src="./js/modal.js"></script>
+  
+  <script>
+    let currentPage = 0;
+    let totalPages = 0;
+    const itemsPerPage = 10;
+    let currentApprovals = [];
+    
+    let currentFilters = {
+      search: '',
+      projectId: '',
+      sort: 'createdAt,DESC'
+    };
+    
+    let statsData = {
+      pendingCount: 0,
+      pendingAmount: 0,
+      approvedToday: 0,
+      rejectedToday: 0
+    };
+    
+    // Load components
+    async function loadComponents() {
+      const sidebarRes = await fetch('./components/sidebar.html');
+      document.getElementById('sidebarContainer').innerHTML = await sidebarRes.text();
+      
+      const headerRes = await fetch('./components/header.html');
+      document.getElementById('headerContainer').innerHTML = await headerRes.text();
+      
+      const modalRes = await fetch('./components/modal.html');
+      document.getElementById('modalContainer').innerHTML = await modalRes.text();
+
+      initSidebar();
+      initHeader();
+      
+      setPageTitle('Approval Workflow', 'Review and approve pending expenses');
+      updateUserInfo();
+    }
+    
+    // Initialize page
+    async function initApprovalsPage() {
+      if (!initializePage('approvals')) return;
+      
+      await loadComponents();
+      
+      setupEventListeners();
+      
+      await Promise.all([
+        loadProjects(),
+        loadApprovalStats(),
+        loadApprovals()
+      ]);
+    }
+    
+    // Setup event listeners
+    function setupEventListeners() {
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', debounce(() => {
+        applyFilters();
+      }, 300));
+      
+      document.getElementById('projectFilter').addEventListener('change', applyFilters);
+      document.getElementById('sortFilter').addEventListener('change', applyFilters);
+      document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+    }
+    
+    // Load projects for filter
+    async function loadProjects() {
+      try {
+        const data = await apiGet('/projects/name');
+        const projects = data.content || [];
+        
+        const projectFilter = document.getElementById('projectFilter');
+        const currentValue = projectFilter.value;
+        
+        projectFilter.innerHTML = '<option value="">All Projects</option>' +
+          projects.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+        
+        if (currentValue) {
+          projectFilter.value = currentValue;
+        }
+      } catch (error) {
+        console.error('Error loading projects:', error);
+      }
+    }
+    
+    // Load approval statistics
+    async function loadApprovalStats() {
+      try {
+        const stats = await apiGet('/approvals/stats');
+        statsData = {
+          pendingCount: stats.pendingCount || 0,
+          pendingAmount: stats.pendingAmount || 0,
+          approvedToday: stats.approvedToday || 0,
+          rejectedToday: stats.rejectedToday || 0
+        };
+        updateStatsDisplay();
+      } catch (error) {
+        console.error('Error loading approval stats:', error);
+        updateStatsDisplay();
+      }
+    }
+    
+    // Update stats display
+    function updateStatsDisplay() {
+      document.getElementById('pendingCountStat').textContent = statsData.pendingCount;
+      document.getElementById('pendingAmountStat').textContent = formatCurrency(statsData.pendingAmount);
+      document.getElementById('approvedTodayStat').textContent = statsData.approvedToday;
+      document.getElementById('rejectedTodayStat').textContent = statsData.rejectedToday;
+    }
+    
+    // Load approvals with pagination
+    async function loadApprovals(page = 0) {
+      try {
+        showLoader();
+        
+        const params = new URLSearchParams({
+          page: page,
+          size: itemsPerPage,
+          sort: currentFilters.sort
+        });
+        
+        if (currentFilters.search && currentFilters.search.trim() !== '') {
+          params.append('search', currentFilters.search.trim());
+        }
+        
+        if (currentFilters.projectId && currentFilters.projectId !== '') {
+          params.append('projectId', currentFilters.projectId);
+        }
+        
+        const data = await apiGet(`/approvals/pending?${params.toString()}`);
+        
+        currentApprovals = data.content.expenses || [];
+        currentPage = data.content.number || 0;
+        totalPages = data.content.totalPages || 0;
+        
+        hideLoader();
+        renderApprovals();
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+        showEmptyState();
+      }
+    }
+    
+    // Apply filters
+    function applyFilters() {
+      currentFilters.search = document.getElementById('searchInput').value;
+      currentFilters.projectId = document.getElementById('projectFilter').value;
+      currentFilters.sort = document.getElementById('sortFilter').value;
+      loadApprovals(0);
+    }
+    
+    // Clear filters
+    function clearFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('projectFilter').value = '';
+      document.getElementById('sortFilter').value = 'createdAt,desc';
+      currentFilters = { search: '', projectId: '', sort: 'createdAt,desc' };
+      loadApprovals(0);
+    }
+    
+    // Calculate days pending
+    function daysPending(dateString) {
+      const created = new Date(dateString);
+      const now = new Date();
+      const diffTime = Math.abs(now - created);
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+    
+    // Render approvals table
+    function renderApprovals() {
+      const loadingState = document.getElementById('loadingState');
+      const tableContainer = document.getElementById('tableContainer');
+      const emptyState = document.getElementById('emptyState');
+      
+      loadingState.style.display = 'none';
+      
+      if (currentApprovals.length === 0) {
+        tableContainer.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      tableContainer.style.display = 'block';
+      
+      const tbody = document.getElementById('approvalsTableBody');
+      tbody.innerHTML = currentApprovals.map(approval => {
+        const days = daysPending(approval.createdAt);
+        const isUrgent = days > 3;
+        
+        return `
+        <tr style="${isUrgent ? 'background: rgba(251, 191, 36, 0.05);' : ''}">
+          <td style="font-family: var(--font-display); font-weight: 600; color: var(--primary);">
+            ${approval.expenseId || '-'}
+          </td>
+          <td>
+            <div style="font-weight: 600;">${escapeHtml(approval.projectName || 'N/A')}</div>
+            ${approval.description ? `<div style="font-size: 12px; color: var(--gray-500);">${truncate(approval.description, 40)}</div>` : ''}
+          </td>
+          <td>
+            <span class="badge badge-outline">${escapeHtml(approval.category)}</span>
+          </td>
+          <td style="font-weight: 700; color: var(--gray-900);">
+            ${formatCurrency(approval.amount)}
+          </td>
+          <td>${escapeHtml(approval.createdByName || 'Unknown')}</td>
+          <td style="font-size: 13px; color: var(--gray-600);">
+            ${formatDate(approval.createdAt)}
+          </td>
+          <td>
+            <span class="badge ${isUrgent ? 'badge-warning' : 'badge-gray'}" style="font-size: 13px;">
+              ${days} ${days === 1 ? 'day' : 'days'}
+            </span>
+          </td>
+          <td>
+            <div style="display: flex; gap: 8px; justify-content: center;">
+              <button onclick="viewApproval('${approval.id}')" class="btn btn-sm btn-outline" title="View Details">
+                👁️
+              </button>
+              <button onclick="approveExpense('${approval.id}', '${escapeHtml(approval.expenseId)}')" class="btn btn-sm" style="background: var(--success); color: white;" title="Approve">
+                ✓
+              </button>
+              <button onclick="rejectExpense('${approval.id}', '${escapeHtml(approval.expenseId)}')" class="btn btn-sm btn-danger" title="Reject">
+                ✕
+              </button>
+            </div>
+          </td>
+        </tr>
+        `;
+      }).join('');
+      
+      renderPagination();
+    }
+    
+    // Render pagination
+    function renderPagination() {
+      const container = document.getElementById('paginationContainer');
+      
+      if (totalPages <= 1) {
+        container.style.display = 'none';
+        return;
+      }
+      
+      container.style.display = 'flex';
+      
+      let html = `
+        <button class="pagination-btn" ${currentPage === 0 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+          ← Previous
+        </button>
+      `;
+      
+      for (let i = 0; i < totalPages; i++) {
+        if (i === 0 || i === totalPages - 1 || (i >= currentPage - 1 && i <= currentPage + 1)) {
+          html += `
+            <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+              ${i + 1}
+            </button>
+          `;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+          html += '<span style="padding: 8px;">...</span>';
+        }
+      }
+      
+      html += `
+        <button class="pagination-btn" ${currentPage === totalPages - 1 ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+          Next →
+        </button>
+      `;
+      
+      container.innerHTML = html;
+    }
+    
+    // Change page
+    function changePage(page) {
+      if (page < 0 || page >= totalPages) return;
+      loadApprovals(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // View approval details
+    async function viewApproval(approvalId) {
+      try {
+        showLoader();
+        let data = await apiGet(`/approvals/${approvalId}`);
+        const approval = data.content;
+        hideLoader();
+        
+        showDetailsModal('Expense Details', {
+          'Expense ID': approval.expenseId,
+          'Project': approval.projectName || '-',
+          'Vendor': approval.vendorName || '-',
+          'Category': approval.category,
+          'Amount': formatCurrency(approval.amount),
+          'Date': formatDate(approval.date),
+          'Description': approval.description || '-',
+          'Bill Number': approval.billNumber || '-',
+          'Requested By': approval.createdByName || '-',
+          'Request Date': formatDate(approval.createdAt),
+          'Days Pending': daysPending(approval.createdAt) + ' days'
+        });
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+    
+    // Approve expense
+    async function approveExpense(approvalId, expenseId) {
+      const confirmed = await confirmDialog(
+        `Approve expense ${expenseId}? This action cannot be undone.`
+      );
+      
+      if (!confirmed) return;
+      
+      try {
+        showLoader();
+        await apiPost(`/approvals/${approvalId}/approve`, {});
+        hideLoader();
+        
+        showToast('Expense approved successfully!', 'success');
+        
+        await loadApprovalStats();
+        
+        if (currentApprovals.length === 1 && currentPage > 0) {
+          loadApprovals(currentPage - 1);
+        } else {
+          loadApprovals(currentPage);
+        }
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+    
+    // Reject expense
+    async function rejectExpense(approvalId, expenseId) {
+      const reason = await promptDialog(
+        `Reject expense ${expenseId}`,
+        'Enter rejection reason (required)'
+      );
+      
+      if (!reason || reason.trim() === '') {
+        showToast('Rejection reason is required', 'error');
+        return;
+      }
+      
+      try {
+        showLoader();
+        await apiPost(`/approvals/${approvalId}/reject`, {
+          rejectionReason: reason.trim()
+        });
+        hideLoader();
+        
+        showToast('Expense rejected', 'info');
+        
+        await loadApprovalStats();
+        
+        if (currentApprovals.length === 1 && currentPage > 0) {
+          loadApprovals(currentPage - 1);
+        } else {
+          loadApprovals(currentPage);
+        }
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+    
+    // Show/hide states
+    function showEmptyState() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+    }
+    
+    function showLoader() {
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'none';
+    }
+    
+    function hideLoader() {
+      document.getElementById('loadingState').style.display = 'none';
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initApprovalsPage);
+  </script>
+  
+</body>
+</html>

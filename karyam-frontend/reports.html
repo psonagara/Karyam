@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARYAM - Reports</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+  <!-- Include Sidebar -->
+  <div id="sidebarContainer"></div>
+
+  <!-- Main Content -->
+  <div style="margin-left: var(--sidebar-width); padding-top: var(--header-height);">
+
+    <!-- Include Header -->
+    <div id="headerContainer"></div>
+
+    <!-- Reports Content -->
+    <main style="padding: 32px;">
+
+      <!-- Page Header -->
+      <div
+        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Reports & Analytics</h1>
+          <p style="color: var(--gray-600); font-size: 14px;">View comprehensive business reports</p>
+        </div>
+      </div>
+
+      <!-- Report Tabs -->
+      <div
+        style="display: flex; gap: 8px; margin-bottom: 32px; border-bottom: 2px solid var(--gray-200); padding-bottom: 0; overflow-x: auto;">
+        <button class="report-tab active" data-tab="expenses" onclick="switchTab('expenses')">
+          <span>💰</span>
+          <span>Expense Reports</span>
+        </button>
+        <button class="report-tab" data-tab="payroll" onclick="switchTab('payroll')">
+          <span>💵</span>
+          <span>Payroll Reports</span>
+        </button>
+        <button class="report-tab" data-tab="vendors" onclick="switchTab('vendors')">
+          <span>🏪</span>
+          <span>Vendor Reports</span>
+        </button>
+        <button class="report-tab" data-tab="projects" onclick="switchTab('projects')">
+          <span>🏗️</span>
+          <span>Project Reports</span>
+        </button>
+      </div>
+
+      <!-- Expense Reports Tab -->
+      <div id="expenses-tab" class="tab-content">
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label">Date Range</label>
+              <select id="expenseDateRange" class="form-select">
+                <option value="7">Last 7 Days</option>
+                <option value="30" selected>Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+                <option value="365">Last Year</option>
+                <option value="custom">Custom Range</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label">Project</label>
+              <select id="expenseProject" class="form-select">
+                <option value="">All Projects</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label">Category</label>
+              <select id="expenseCategory" class="form-select">
+                <option value="">Select Category</option>
+                <option value="MATERIALS">Materials</option>
+                <option value="LABOR">Labor</option>
+                <option value="EQUIPMENT">Equipment</option>
+                <option value="TRANSPORT">Transport</option>
+                <option value="UTILITIES">Utilities</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+            <button onclick="loadExpenseReport()" class="btn btn-primary">
+              <span>📊</span>
+              <span>Generate</span>
+            </button>
+            <button onclick="exportReport('expense')" class="btn btn-outline">
+              <span>📥</span>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px;">
+          <div class="card" style="padding: 20px; background: linear-gradient(135deg, var(--info-light), #DBEAFE);">
+            <div
+              style="font-size: 13px; font-weight: 600; color: var(--info); text-transform: uppercase; margin-bottom: 8px;">
+              Total Expenses</div>
+            <div id="expenseTotal" style="font-size: 1.75rem; font-weight: 800; color: var(--info);">₹0</div>
+          </div>
+          <div class="card" style="padding: 20px; background: linear-gradient(135deg, var(--success-light), #D1FAE5);">
+            <div
+              style="font-size: 13px; font-weight: 600; color: var(--success); text-transform: uppercase; margin-bottom: 8px;">
+              Approved</div>
+            <div id="expenseApproved" style="font-size: 1.75rem; font-weight: 800; color: var(--success);">₹0</div>
+          </div>
+          <div class="card" style="padding: 20px; background: linear-gradient(135deg, var(--warning-light), #FEF3C7);">
+            <div
+              style="font-size: 13px; font-weight: 600; color: var(--warning); text-transform: uppercase; margin-bottom: 8px;">
+              Pending</div>
+            <div id="expensePending" style="font-size: 1.75rem; font-weight: 800; color: var(--warning);">₹0</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+          <div class="card">
+            <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 16px;">Expense Trend</h3>
+            <canvas id="expenseTrendChart" style="max-height: 300px;"></canvas>
+          </div>
+          <div class="card">
+            <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 16px;">By Category</h3>
+            <canvas id="expenseCategoryChart" style="max-height: 300px;"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Payroll Reports Tab -->
+      <div id="payroll-tab" class="tab-content" style="display: none;">
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label">Month</label>
+              <input type="month" id="payrollMonth" class="form-input">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label">Project</label>
+              <select id="payrollProject" class="form-select">
+                <option value="">All Projects</option>
+              </select>
+            </div>
+            <button onclick="loadPayrollReport()" class="btn btn-primary">
+              <span>📊</span>
+              <span>Generate</span>
+            </button>
+            <button onclick="exportReport('payroll')" class="btn btn-outline">
+              <span>📥</span>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px;">
+          <div class="card" style="padding: 20px; background: linear-gradient(135deg, var(--info-light), #DBEAFE);">
+            <div
+              style="font-size: 13px; font-weight: 600; color: var(--info); text-transform: uppercase; margin-bottom: 8px;">
+              Total Payroll</div>
+            <div id="payrollTotal" style="font-size: 1.75rem; font-weight: 800; color: var(--info);">₹0</div>
+          </div>
+          <div class="card" style="padding: 20px; background: linear-gradient(135deg, var(--success-light), #D1FAE5);">
+            <div
+              style="font-size: 13px; font-weight: 600; color: var(--success); text-transform: uppercase; margin-bottom: 8px;">
+              Total Workers</div>
+            <div id="payrollWorkers" style="font-size: 1.75rem; font-weight: 800; color: var(--success);">0</div>
+          </div>
+          <div class="card" style="padding: 20px; background: linear-gradient(135deg, var(--warning-light), #FEF3C7);">
+            <div
+              style="font-size: 13px; font-weight: 600; color: var(--warning); text-transform: uppercase; margin-bottom: 8px;">
+              Avg Salary</div>
+            <div id="payrollAvg" style="font-size: 1.75rem; font-weight: 800; color: var(--warning);">₹0</div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="card">
+          <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 16px;">Payroll by Labor Type</h3>
+          <canvas id="payrollChart" style="max-height: 350px;"></canvas>
+        </div>
+
+      </div>
+
+      <!-- Vendor Reports Tab -->
+      <div id="vendors-tab" class="tab-content" style="display: none;">
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label">Category</label>
+              <select id="vendorCategory" class="form-select">
+                <option value="">All Categories</option>
+                <option value="MATERIALS">Materials</option>
+                <option value="EQUIPMENT">Equipment</option>
+                <option value="SERVICES">Services</option>
+                <option value="SUBCONTRACTOR">Subcontractor</option>
+                <option value="TRANSPORT">Transport</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+            <button onclick="loadVendorReport()" class="btn btn-primary">
+              <span>📊</span>
+              <span>Generate</span>
+            </button>
+            <button onclick="exportReport('vendor')" class="btn btn-outline">
+              <span>📥</span>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px;">
+          <div class="card" style="padding: 20px; background: linear-gradient(135deg, var(--info-light), #DBEAFE);">
+            <div
+              style="font-size: 13px; font-weight: 600; color: var(--info); text-transform: uppercase; margin-bottom: 8px;">
+              Total Vendors</div>
+            <div id="vendorTotal" style="font-size: 1.75rem; font-weight: 800; color: var(--info);">0</div>
+          </div>
+          <div class="card" style="padding: 20px; background: linear-gradient(135deg, var(--danger-light), #FEE2E2);">
+            <div
+              style="font-size: 13px; font-weight: 600; color: var(--danger); text-transform: uppercase; margin-bottom: 8px;">
+              Total Dues</div>
+            <div id="vendorDues" style="font-size: 1.75rem; font-weight: 800; color: var(--danger);">₹0</div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="card">
+          <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 16px;">Top Vendors by Amount Due</h3>
+          <canvas id="vendorChart" style="max-height: 350px;"></canvas>
+        </div>
+
+      </div>
+
+      <!-- Project Reports Tab -->
+      <div id="projects-tab" class="tab-content" style="display: none;">
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label">Status</label>
+              <select id="projectStatus" class="form-select">
+                <option value="">All Status</option>
+                <option value="ACTIVE">Active</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="PENDING">Pending</option>
+                <option value="ON_HOLD">On Hold</option>
+              </select>
+            </div>
+            <button onclick="loadProjectReport()" class="btn btn-primary">
+              <span>📊</span>
+              <span>Generate</span>
+            </button>
+            <button onclick="exportReport('project')" class="btn btn-outline">
+              <span>📥</span>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px;">
+          <div class="card" style="padding: 20px; background: linear-gradient(135deg, var(--info-light), #DBEAFE);">
+            <div
+              style="font-size: 13px; font-weight: 600; color: var(--info); text-transform: uppercase; margin-bottom: 8px;">
+              Total Projects</div>
+            <div id="projectTotal" style="font-size: 1.75rem; font-weight: 800; color: var(--info);">0</div>
+          </div>
+          <div class="card" style="padding: 20px; background: linear-gradient(135deg, var(--success-light), #D1FAE5);">
+            <div
+              style="font-size: 13px; font-weight: 600; color: var(--success); text-transform: uppercase; margin-bottom: 8px;">
+              Total Budget</div>
+            <div id="projectBudget" style="font-size: 1.75rem; font-weight: 800; color: var(--success);">₹0</div>
+          </div>
+          <div class="card" style="padding: 20px; background: linear-gradient(135deg, var(--warning-light), #FEF3C7);">
+            <div
+              style="font-size: 13px; font-weight: 600; color: var(--warning); text-transform: uppercase; margin-bottom: 8px;">
+              Total Spent</div>
+            <div id="projectSpent" style="font-size: 1.75rem; font-weight: 800; color: var(--warning);">₹0</div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="card">
+          <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 16px;">Budget vs Actual</h3>
+          <canvas id="projectChart" style="max-height: 350px;"></canvas>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Include Modal -->
+  <div id="modalContainer"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+  <script src="./js/api-utils.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/role-permission.js"></script>
+  <script src="./js/common.js"></script>
+
+  <script>
+    let charts = {};
+
+    // Load components
+    async function loadComponents() {
+      const sidebarRes = await fetch('./components/sidebar.html');
+      document.getElementById('sidebarContainer').innerHTML = await sidebarRes.text();
+
+      const headerRes = await fetch('./components/header.html');
+      document.getElementById('headerContainer').innerHTML = await headerRes.text();
+
+      const modalRes = await fetch('./components/modal.html');
+      document.getElementById('modalContainer').innerHTML = await modalRes.text();
+
+      initSidebar();
+      initHeader();
+
+      setPageTitle('Reports & Analytics', 'View comprehensive business reports');
+      updateUserInfo();
+    }
+
+    // Initialize page
+    async function initReportsPage() {
+      if (!initializePage('reports')) return;
+
+      await loadComponents();
+      await loadProjects();
+
+      // Set current month for payroll
+      const now = new Date();
+      const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      document.getElementById('payrollMonth').value = monthStr;
+
+      // Load default report
+      await loadExpenseReport();
+    }
+
+    // Load projects for filters
+    async function loadProjects() {
+      try {
+        let data = await apiGet('/projects/name');
+        const projects = data.content;
+        const selects = ['expenseProject', 'payrollProject'];
+
+        selects.forEach(selectId => {
+          const select = document.getElementById(selectId);
+          if (projects && projects.length > 0) {
+            projects.forEach(project => {
+              const option = document.createElement('option');
+              option.value = project.id || project.projectId;
+              option.textContent = project.name;
+              select.appendChild(option);
+            });
+          }
+        });
+      } catch (error) {
+        console.error('Failed to load projects:', error);
+      }
+    }
+
+    // Switch tab
+    function switchTab(tab) {
+      // Update tabs
+      document.querySelectorAll('.report-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+      // Update content
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      document.getElementById(`${tab}-tab`).style.display = 'block';
+
+      // Load data for tab
+      switch (tab) {
+        case 'expenses': loadExpenseReport(); break;
+        case 'payroll': loadPayrollReport(); break;
+        case 'vendors': loadVendorReport(); break;
+        case 'projects': loadProjectReport(); break;
+      }
+    }
+
+    function getExpenseFilters() {
+      return {
+        days: document.getElementById('expenseDateRange').value,
+        projectId: document.getElementById('expenseProject').value || '',
+        category: document.getElementById('expenseCategory').value || ''
+      };
+    }
+
+    // Load expense report
+    async function loadExpenseReport() {
+      try {
+        showLoader();
+
+        const filters = getExpenseFilters();
+        const params = new URLSearchParams({
+          days: filters.days,
+          projectId: filters.projectId,
+          category: filters.category
+        });
+
+        let result = await apiGet(`/reports/expenses?${params.toString()}`);
+        const data = result.summary;
+        hideLoader();
+
+        // Update stats
+        document.getElementById('expenseTotal').textContent = formatCurrency(data.total || 0);
+        document.getElementById('expenseApproved').textContent = formatCurrency(data.approved || 0);
+        document.getElementById('expensePending').textContent = formatCurrency(data.pending || 0);
+
+        // Render charts
+        renderExpenseTrendChart(result.trend);
+        renderExpenseCategoryChart(result.categories);
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+
+    function getPayrollFilters() {
+      return {
+        month: document.getElementById('payrollMonth').value,
+        projectId: document.getElementById('payrollProject').value || ''
+      };
+    }
+
+    // Load payroll report
+    async function loadPayrollReport() {
+      try {
+        showLoader();
+
+        const filters = getPayrollFilters();
+        const params = new URLSearchParams(filters);
+
+
+        const data = await apiGet(`/reports/payroll?${params.toString()}`);
+        hideLoader();
+
+        document.getElementById('payrollTotal').textContent = formatCurrency(data.total || 0);
+        document.getElementById('payrollWorkers').textContent = data.workers || 0;
+        document.getElementById('payrollAvg').textContent = formatCurrency(data.average || 0);
+
+        renderPayrollChart(data.byType || []);
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+
+    // Load vendor report
+    async function loadVendorReport() {
+      try {
+        showLoader();
+        const filters = getVendorFilters();
+        const params = new URLSearchParams(filters);
+        const data = await apiGet(`/reports/vendors?${params.toString()}`);
+        hideLoader();
+
+        document.getElementById('vendorTotal').textContent = data.totalVendors || 0;
+        document.getElementById('vendorDues').textContent = formatCurrency(data.totalDues || 0);
+
+        renderVendorChart(data.topVendors || []);
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+
+    function getProjectFilters() {
+      return {
+        status: document.getElementById('projectStatus').value || ''
+      };
+    }
+
+    // Load project report
+    async function loadProjectReport() {
+      try {
+        showLoader();
+        const filters = getProjectFilters();
+        const params = new URLSearchParams(filters);
+        const data = await apiGet(`/reports/projects?${params.toString()}`);
+        hideLoader();
+
+        document.getElementById('projectTotal').textContent = data.totalProjects || 0;
+        document.getElementById('projectBudget').textContent = formatCurrency(data.totalBudget || 0);
+        document.getElementById('projectSpent').textContent = formatCurrency(data.totalSpent || 0);
+
+        renderProjectChart(data.projectBreakdown || []);
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+
+    // Render expense trend chart
+    function renderExpenseTrendChart(data) {
+      const ctx = document.getElementById('expenseTrendChart').getContext('2d');
+      if (charts.expenseTrend) charts.expenseTrend.destroy();
+
+      charts.expenseTrend = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.map(d => d[0]),
+          datasets: [{
+            label: 'Expenses',
+            data: data.map(d => d[1]),
+            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--primary').trim(),
+            backgroundColor: 'rgba(217, 117, 66, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    // Render expense category chart
+    function renderExpenseCategoryChart(data) {
+      const ctx = document.getElementById('expenseCategoryChart').getContext('2d');
+      if (charts.expenseCategory) charts.expenseCategory.destroy();
+
+      charts.expenseCategory = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: data.map(d => d[0]),
+          datasets: [{
+            data: data.map(d => d[1]),
+            backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true
+        }
+      });
+    }
+
+    // Render payroll chart
+    function renderPayrollChart(data) {
+      const ctx = document.getElementById('payrollChart').getContext('2d');
+      if (charts.payroll) charts.payroll.destroy();
+
+      charts.payroll = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map(d => d[0]),
+          datasets: [{
+            label: 'Payroll Amount',
+            data: data.map(d => d[1]),
+            backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function getVendorFilters() {
+      return {
+        category: document.getElementById('vendorCategory').value || ''
+      };
+    }
+
+    // Render vendor chart
+    function renderVendorChart(data) {
+      const ctx = document.getElementById('vendorChart').getContext('2d');
+      if (charts.vendor) charts.vendor.destroy();
+
+      charts.vendor = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map(d => d[0]),
+          datasets: [{
+            label: 'Due Amount',
+            data: data.map(d => d[1]),
+            backgroundColor: '#EF4444'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    // Render project chart
+    function renderProjectChart(data) {
+      const ctx = document.getElementById('projectChart').getContext('2d');
+      if (charts.project) charts.project.destroy();
+
+      charts.project = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map(d => d[0]),
+          datasets: [
+            {
+              label: 'Budget',
+              data: data.map(d => d[1]),
+              backgroundColor: '#10B981'
+            },
+            {
+              label: 'Spent',
+              data: data.map(d => d[2]),
+              backgroundColor: '#F59E0B'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true
+        }
+      });
+    }
+
+    // Export report
+    async function exportReport(type) {
+      try {
+        showLoader();
+
+        let params = '';
+        if (type === 'expense') {
+          const filters = getExpenseFilters();
+          params = new URLSearchParams({
+            days: filters.days,
+            projectId: filters.projectId,
+            category: filters.category
+          });
+        } else if (type === 'payroll') {
+          const filters = getPayrollFilters();
+          params = new URLSearchParams(filters);
+        } else if (type === 'vendor') {
+          const filters = getVendorFilters();
+          params = new URLSearchParams(filters);
+        } else if (type === 'project') {
+          const filters = getProjectFilters();
+          params = new URLSearchParams(filters);
+        }
+        await apiExportCSV(`/reports/${type}/export?${params.toString()}`, `${type}-report.csv`);
+        hideLoader();
+        showToast('Report exported successfully!', 'success');
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initReportsPage);
+  </script>
+
+  <style>
+    .report-tab {
+      padding: 12px 24px;
+      border: none;
+      background: transparent;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: var(--font-display);
+      color: var(--gray-600);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .report-tab:hover {
+      color: var(--primary);
+    }
+
+    .report-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    @media (max-width: 768px) {
+
+      #expenses-tab>div:nth-child(3),
+      #payroll-tab>div:nth-child(3),
+      #vendors-tab>div:nth-child(3),
+      #projects-tab>div:nth-child(3) {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+
+</body>
+
+</html>

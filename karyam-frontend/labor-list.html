@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARYAM - Labor Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body>
+  
+  <!-- Include Sidebar -->
+  <div id="sidebarContainer"></div>
+  
+  <!-- Main Content -->
+  <div style="margin-left: var(--sidebar-width); padding-top: var(--header-height);">
+    
+    <!-- Include Header -->
+    <div id="headerContainer"></div>
+    
+    <!-- Labor Management Content -->
+    <main style="padding: 32px;">
+      
+      <!-- Page Header -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Labor Management</h1>
+          <p style="color: var(--gray-600); font-size: 14px;">Manage workers and their assignments</p>
+        </div>
+        <button id="addLaborBtn" class="btn btn-primary" style="display: none;">
+          <span style="font-size: 20px;">+</span>
+          <span>Add Worker</span>
+        </button>
+      </div>
+      
+      <!-- Stats Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px;">
+        
+        <!-- Active Workers Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--success-light); color: var(--success);">
+              👷
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Active Workers</div>
+              <div id="activeWorkersCount" style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--success);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Total Workers Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">
+              👥
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Total Workers</div>
+              <div id="totalWorkersCount" style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--primary);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Average Wage Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: #FEF3C7; color: #F59E0B;">
+              💰
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Avg Wage/Day</div>
+              <div id="avgWageAmount" style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: #F59E0B;">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+      <!-- Filters & Search -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div style="display: grid; grid-template-columns: 1fr auto auto auto auto; gap: 16px; align-items: end;">
+          
+          <!-- Search -->
+          <div class="form-group" style="margin: 0;">
+            <label class="form-label">Search Workers</label>
+            <input type="text" id="searchInput" class="form-input" placeholder="Search by name, phone, or laborId...">
+          </div>
+          
+          <!-- Labor Type Filter -->
+          <div class="form-group" style="margin: 0; min-width: 160px;">
+            <label class="form-label">Labor Type</label>
+            <select id="laborTypeFilter" class="form-select">
+              <option value="">All Types</option>
+              <option value="MASON">Mason</option>
+              <option value="GROUND_LABOR">Ground Labor</option>
+              <option value="CARPENTER">Carpenter</option>
+              <option value="ELECTRICIAN">Electrician</option>
+              <option value="PLUMBER">Plumber</option>
+              <option value="PAINTER">Painter</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+          
+          <!-- Status Filter -->
+          <div class="form-group" style="margin: 0; min-width: 140px;">
+            <label class="form-label">Status</label>
+            <select id="statusFilter" class="form-select">
+              <option value="">All Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+          
+          <!-- Project Filter -->
+          <div class="form-group" style="margin: 0; min-width: 180px;">
+            <label class="form-label">Project</label>
+            <select id="projectFilter" class="form-select">
+              <option value="">All Projects</option>
+              
+              <!-- Projects will be loaded dynamically -->
+            </select>
+          </div>
+          
+          <!-- Clear Filters -->
+          <button id="clearFiltersBtn" class="btn btn-outline">
+            <span>Clear</span>
+          </button>
+          
+        </div>
+      </div>
+      
+      <!-- Workers Table -->
+      <div class="card">
+        <div id="loadingState" style="text-align: center; padding: 60px;">
+          <div class="loader loader-lg" style="margin: 0 auto 16px;"></div>
+          <p style="color: var(--gray-600);">Loading workers...</p>
+        </div>
+        
+        <div id="tableContainer" style="display: none;">
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Worker</th>
+                  <th>Labor Type</th>
+                  <th>Contact</th>
+                  <th>Daily Wage</th>
+                  <th>Assigned Project</th>
+                  <th>Status</th>
+                  <th>Joining Date</th>
+                  <th style="text-align: center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="laborTableBody">
+                <!-- Rows will be populated here -->
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Pagination -->
+          <div id="paginationContainer" class="pagination" style="display: none;">
+            <!-- Pagination will be populated here -->
+          </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div id="emptyState" style="display: none;" class="empty-state">
+          <div class="empty-state-icon">👷</div>
+          <div class="empty-state-text">No workers found</div>
+          <button id="addFirstLaborBtn" class="btn btn-primary" style="margin-top: 16px; display: none;">
+            <span>Add Your First Worker</span>
+          </button>
+        </div>
+      </div>
+      
+    </main>
+  </div>
+
+  <!-- Include Modal -->
+  <div id="modalContainer"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+  <script src="./js/api-utils.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/role-permission.js"></script>
+  <script src="./js/common.js"></script>
+  <script src="./js/modal.js"></script>
+  
+  <script>
+    let currentPage = 0; // Backend pagination starts from 0
+    let totalPages = 0;
+    const itemsPerPage = 10;
+    let currentLabors = [];
+    
+    // Current filter state
+    let currentFilters = {
+      search: '',
+      laborType: '',
+      status: '',
+      projectId: ''
+    };
+    
+    // Stats data
+    let statsData = {
+      totalWorkers: 0,
+      activeWorkers: 0,
+      averageDailyWage: 0
+    };
+    
+    // Load components
+    async function loadComponents() {
+      const sidebarRes = await fetch('./components/sidebar.html');
+      document.getElementById('sidebarContainer').innerHTML = await sidebarRes.text();
+      
+      const headerRes = await fetch('./components/header.html');
+      document.getElementById('headerContainer').innerHTML = await headerRes.text();
+      
+      const modalRes = await fetch('./components/modal.html');
+      document.getElementById('modalContainer').innerHTML = await modalRes.text();
+
+      initSidebar();
+      initHeader();
+      
+      setPageTitle('Labor Management', 'Manage workers and their assignments');
+      updateUserInfo();
+    }
+    
+    // Initialize page
+    async function initLaborPage() {
+      if (!initializePage('labor')) return;
+      
+      await loadComponents();
+      
+      // Show/hide add button based on permission
+      const canAddLabor = canCreate('labor');
+      document.getElementById('addLaborBtn').style.display = canAddLabor ? 'flex' : 'none';
+      document.getElementById('addFirstLaborBtn').style.display = canAddLabor ? 'inline-flex' : 'none';
+      
+      // Setup event listeners
+      setupEventListeners();
+      
+      // Load initial data
+      await Promise.all([
+        loadProjects(),
+        loadLaborStats(),
+        loadLabors()
+      ]);
+    }
+    
+    // Setup event listeners
+    function setupEventListeners() {
+      // Add labor button
+      document.getElementById('addLaborBtn')?.addEventListener('click', openLaborForm);
+      document.getElementById('addFirstLaborBtn')?.addEventListener('click', openLaborForm);
+      
+      // Search with debounce
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', debounce(() => {
+        applyFilters();
+      }, 300));
+      
+      // Filter changes
+      document.getElementById('laborTypeFilter').addEventListener('change', applyFilters);
+      document.getElementById('statusFilter').addEventListener('change', applyFilters);
+      document.getElementById('projectFilter').addEventListener('change', applyFilters);
+      
+      // Clear filters
+      document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+    }
+    
+    // Load projects for filter dropdown
+    async function loadProjects() {
+      try {
+        const data = await apiGet('/projects/name');
+        const projects = data.content || [];
+        
+        const projectFilter = document.getElementById('projectFilter');
+        const currentValue = projectFilter.value;
+        
+        // Keep "All Projects" option and add projects
+        projectFilter.innerHTML = '<option value="">All</option><option value="unAssigned">Not Assigned</option>' + 
+          projects.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+        
+        // Restore selected value if exists
+        if (currentValue) {
+          projectFilter.value = currentValue;
+        }
+      } catch (error) {
+        console.error('Error loading projects:', error);
+      }
+    }
+    
+    // Load labor statistics from backend
+    async function loadLaborStats() {
+      try {
+        const stats = await apiGet('/labors/stats');
+        
+        statsData = {
+          totalWorkers: stats.totalWorkers || 0,
+          activeWorkers: stats.activeWorkers || 0,
+          averageDailyWage: stats.averageDailyWage || 0
+        };
+        
+        // Update stats display
+        updateStatsDisplay();
+      } catch (error) {
+        console.error('Error loading labor stats:', error);
+        // Show default values on error
+        updateStatsDisplay();
+      }
+    }
+    
+    // Update stats display
+    function updateStatsDisplay() {
+      document.getElementById('activeWorkersCount').textContent = statsData.activeWorkers;
+      document.getElementById('totalWorkersCount').textContent = statsData.totalWorkers;
+      document.getElementById('avgWageAmount').textContent = formatCurrency(statsData.averageDailyWage);
+    }
+    
+    // Load labors from API with pagination and filters
+    async function loadLabors(page = 0) {
+      try {
+        showLoader();
+        
+        // Build query parameters
+        const params = new URLSearchParams({
+          page: page,
+          size: itemsPerPage,
+          sort: 'createdAt,desc'
+        });
+        
+        // Add optional filter parameters only if they have values
+        if (currentFilters.search && currentFilters.search.trim() !== '') {
+          params.append('search', currentFilters.search.trim());
+        }
+        
+        if (currentFilters.laborType && currentFilters.laborType !== '') {
+          params.append('laborType', currentFilters.laborType);
+        }
+        
+        if (currentFilters.status && currentFilters.status !== '') {
+          params.append('status', currentFilters.status);
+        }
+        
+        if (currentFilters.projectId && currentFilters.projectId !== '') {
+          if (currentFilters.projectId === "unAssigned") {
+            params.append('projectId', "-1");
+          } else {
+            params.append('projectId', currentFilters.projectId);
+          }
+        }
+        
+        // Make API call with parameters
+        const data = await apiGet(`/labors?${params.toString()}`);
+        
+        // Handle Spring Boot Page response format
+        currentLabors = data.content.labors || [];
+        currentPage = data.content.number || 0;
+        totalPages = data.content.totalPages || 0;
+        
+        hideLoader();
+        renderLabors();
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+        showEmptyState();
+      }
+    }
+    
+    // Apply filters - reload data from backend
+    function applyFilters() {
+      // Update current filter state
+      currentFilters.search = document.getElementById('searchInput').value;
+      currentFilters.laborType = document.getElementById('laborTypeFilter').value;
+      currentFilters.status = document.getElementById('statusFilter').value;
+      currentFilters.projectId = document.getElementById('projectFilter').value;
+      
+      // Reset to first page and reload
+      loadLabors(0);
+    }
+    
+    // Clear all filters
+    function clearFilters() {
+      // Clear filter inputs
+      document.getElementById('searchInput').value = '';
+      document.getElementById('laborTypeFilter').value = '';
+      document.getElementById('statusFilter').value = '';
+      document.getElementById('projectFilter').value = '';
+      
+      // Reset filter state
+      currentFilters = {
+        search: '',
+        laborType: '',
+        status: '',
+        projectId: ''
+      };
+      
+      // Reload labors from first page
+      loadLabors(0);
+    }
+    
+    // Render labors table
+    function renderLabors() {
+      const loadingState = document.getElementById('loadingState');
+      const tableContainer = document.getElementById('tableContainer');
+      const emptyState = document.getElementById('emptyState');
+      
+      loadingState.style.display = 'none';
+      
+      if (currentLabors.length === 0) {
+        tableContainer.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      tableContainer.style.display = 'block';
+      
+      // Render table rows
+      const tbody = document.getElementById('laborTableBody');
+      tbody.innerHTML = currentLabors.map(labor => `
+        <tr>
+          <td>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="avatar">${getInitials(labor.name)}</div>
+              <div>
+                <div style="font-weight: 600; margin-bottom: 2px;">${escapeHtml(labor.name)}</div>
+                <div style="font-size: 12px; color: var(--gray-500);">${labor.laborId || '-'}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge badge-outline">${escapeHtml(labor.laborType)}</span>
+          </td>
+          <td>
+            <div style="font-size: 14px; margin-bottom: 2px;">📞 ${escapeHtml(labor.phone)}</div>
+            ${labor.emergencyContact ? `<div style="font-size: 12px; color: var(--gray-500);">Emergency: ${escapeHtml(labor.emergencyContact)}</div>` : ''}
+          </td>
+          <td style="font-weight: 700; color: var(--gray-900);">
+            ${formatCurrency(labor.dailyWage)}
+          </td>
+          <td>
+            ${labor.assignedProjectName ? 
+              `<span style="font-size: 14px;">🏗️</span> ${escapeHtml(labor.assignedProjectName)}` : 
+              '<span style="color: var(--gray-400);">Not Assigned</span>'
+            }
+          </td>
+          <td>${getStatusBadge(labor.status)}</td>
+          <td style="font-size: 13px; color: var(--gray-600);">
+            ${formatDate(labor.joiningDate)}
+          </td>
+          <td>
+            <div style="display: flex; gap: 8px; justify-content: center;">
+              <button onclick="viewLabor('${labor.id || labor.laborId}')" class="btn btn-sm btn-outline" title="View Details">
+                👁️
+              </button>
+              ${canEdit('labor') ? `
+                <button onclick="editLabor('${labor.id || labor.laborId}')" class="btn btn-sm btn-outline" title="Edit">
+                  ✏️
+                </button>
+              ` : ''}
+              ${canDelete('labor') ? `
+                <button onclick="deleteLabor('${labor.id || labor.laborId}', '${escapeHtml(labor.name)}')" class="btn btn-sm btn-danger" title="Delete">
+                  🗑️
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+      
+      // Render pagination
+      renderPagination();
+    }
+    
+    // Render pagination
+    function renderPagination() {
+      const container = document.getElementById('paginationContainer');
+      
+      if (totalPages <= 1) {
+        container.style.display = 'none';
+        return;
+      }
+      
+      container.style.display = 'flex';
+      
+      let html = '';
+      
+      // Previous button
+      html += `
+        <button class="pagination-btn" ${currentPage === 0 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+          ← Previous
+        </button>
+      `;
+      
+      // Page numbers (convert 0-based to 1-based for display)
+      for (let i = 0; i < totalPages; i++) {
+        if (i === 0 || i === totalPages - 1 || (i >= currentPage - 1 && i <= currentPage + 1)) {
+          html += `
+            <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+              ${i + 1}
+            </button>
+          `;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+          html += '<span style="padding: 8px;">...</span>';
+        }
+      }
+      
+      // Next button
+      html += `
+        <button class="pagination-btn" ${currentPage === totalPages - 1 ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+          Next →
+        </button>
+      `;
+      
+      container.innerHTML = html;
+    }
+    
+    // Change page
+    function changePage(page) {
+      if (page < 0 || page >= totalPages) return;
+      loadLabors(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // Get initials for avatar
+    function getInitials(name) {
+      if (!name) return '?';
+      const parts = name.trim().split(' ');
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+      return name.substring(0, 2).toUpperCase();
+    }
+    
+    // Open labor form
+    function openLaborForm() {
+      window.location.href = 'labor-form.html';
+    }
+    
+    // View labor details
+    async function viewLabor(laborId) {
+      try {
+        showLoader();
+        let data = await apiGet(`/labors/${laborId}`);
+        const labor = data.content;
+        hideLoader();
+        
+        showDetailsModal('Worker Details', {
+          'Labor ID': labor.laborId,
+          'Full Name': labor.name,
+          'Labor Type': labor.laborType,
+          'Phone': labor.phone,
+          'Emergency Contact': labor.emergencyContact || '-',
+          'Aadhaar Number': labor.aadhaarNumber || '-',
+          'Daily Wage': formatCurrency(labor.dailyWage),
+          'Assigned Project': labor.assignedProjectName || 'Not Assigned',
+          'Status': labor.status,
+          'Joining Date': formatDate(labor.joiningDate),
+          'Address': labor.address || '-'
+        });
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+    
+    // Edit labor
+    function editLabor(laborId) {
+      window.location.href = `labor-form.html?id=${laborId}`;
+    }
+    
+    // Delete labor
+    async function deleteLabor(laborId, laborName) {
+      const confirmed = await confirmDialog(
+        `Are you sure you want to delete worker "${laborName}"? This action cannot be undone.`
+      );
+      
+      if (!confirmed) return;
+      
+      try {
+        showLoader();
+        await apiDelete(`/labors/${laborId}`);
+        hideLoader();
+        
+        showToast('Worker deleted successfully', 'success');
+        
+        // Reload stats and current page
+        await loadLaborStats();
+        
+        // Reload current page, or go to first page if current page becomes empty
+        if (currentLabors.length === 1 && currentPage > 0) {
+          loadLabors(currentPage - 1);
+        } else {
+          loadLabors(currentPage);
+        }
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+    
+    // Show empty state
+    function showEmptyState() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+    }
+    
+    // Show loader
+    function showLoader() {
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'none';
+    }
+    
+    // Hide loader
+    function hideLoader() {
+      document.getElementById('loadingState').style.display = 'none';
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initLaborPage);
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARYAM - Vendor Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+
+<body>
+
+  <!-- Include Sidebar -->
+  <div id="sidebarContainer"></div>
+
+  <!-- Main Content -->
+  <div style="margin-left: var(--sidebar-width); padding-top: var(--header-height);">
+
+    <!-- Include Header -->
+    <div id="headerContainer"></div>
+
+    <!-- Vendors Content -->
+    <main style="padding: 32px;">
+
+      <!-- Page Header -->
+      <div
+        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Vendor Management</h1>
+          <p style="color: var(--gray-600); font-size: 14px;">Manage suppliers and contractors</p>
+        </div>
+        <button id="addVendorBtn" class="btn btn-primary" style="display: none;">
+          <span style="font-size: 20px;">+</span>
+          <span>Add Vendor</span>
+        </button>
+      </div>
+
+      <!-- Stats Cards -->
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px;">
+
+        <!-- Total Vendors Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">
+              🏪
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Total Vendors</div>
+              <div id="totalVendorsCount"
+                style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--primary);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Vendors Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--success-light); color: var(--success);">
+              ✓
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Active Vendors</div>
+              <div id="activeVendorsCount"
+                style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--success);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Dues Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--danger-light); color: var(--danger);">
+              💰
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Total Dues</div>
+              <div id="totalDuesAmount"
+                style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--danger);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div style="display: grid; grid-template-columns: 1fr auto auto auto; gap: 16px; align-items: end;">
+
+          <!-- Search -->
+          <div class="form-group" style="margin: 0;">
+            <label class="form-label">Search Vendors</label>
+            <input type="text" id="searchInput" class="form-input"
+              placeholder="Search by name, contact person, or phone...">
+          </div>
+
+          <!-- Category Filter -->
+          <div class="form-group" style="margin: 0; min-width: 180px;">
+            <label class="form-label">Category</label>
+            <select id="categoryFilter" class="form-select">
+
+              <option value="">All Categories</option>
+              <option value="MATERIALS">Materials</option>
+              <option value="EQUIPMENT">Equipment</option>
+              <option value="SERVICES">Services</option>
+              <option value="SUBCONTRACTOR">Subcontractor</option>
+              <option value="TRANSPORT">Transport</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+
+          <!-- Status Filter -->
+          <div class="form-group" style="margin: 0; min-width: 140px;">
+            <label class="form-label">Status</label>
+            <select id="statusFilter" class="form-select">
+              <option value="">All Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+
+          <!-- Clear Filters -->
+          <button id="clearFiltersBtn" class="btn btn-outline">
+            <span>Clear</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Vendors Table -->
+      <div class="card">
+        <div id="loadingState" style="text-align: center; padding: 60px;">
+          <div class="loader loader-lg" style="margin: 0 auto 16px;"></div>
+          <p style="color: var(--gray-600);">Loading vendors...</p>
+        </div>
+
+        <div id="tableContainer" style="display: none;">
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Vendor Name</th>
+                  <th>Contact Person</th>
+                  <th>Phone</th>
+                  <th>Category</th>
+                  <th>Due Amount</th>
+                  <th>Payment Terms</th>
+                  <th>Status</th>
+                  <th style="text-align: center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="vendorsTableBody">
+                <!-- Rows will be populated here -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div id="paginationContainer" class="pagination" style="display: none;">
+            <!-- Pagination will be populated here -->
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" style="display: none;" class="empty-state">
+          <div class="empty-state-icon">🏪</div>
+          <div class="empty-state-text">No vendors found</div>
+          <button id="addFirstVendorBtn" class="btn btn-primary" style="margin-top: 16px; display: none;">
+            <span>Add Your First Vendor</span>
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Include Modal for Details -->
+  <div id="modalContainer"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+  <script src="./js/api-utils.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/role-permission.js"></script>
+  <script src="./js/common.js"></script>
+  <script src="./js/modal.js"></script>
+
+  <script>
+    let currentPage = 0;
+    let totalPages = 0;
+    const itemsPerPage = 1;
+    let currentVendors = [];
+
+    let currentFilters = {
+      search: '',
+      category: '',
+      status: ''
+    };
+
+    let statsData = {
+      totalVendors: 0,
+      activeVendors: 0,
+      totalDueAmount: 0
+    };
+
+    let paymentData = {
+      vendorId: null,
+      vendorName: '',
+      maxAmount: 0
+    };
+
+    // Load components
+    async function loadComponents() {
+      const sidebarRes = await fetch('./components/sidebar.html');
+      document.getElementById('sidebarContainer').innerHTML = await sidebarRes.text();
+
+      const headerRes = await fetch('./components/header.html');
+      document.getElementById('headerContainer').innerHTML = await headerRes.text();
+
+      const modalRes = await fetch('./components/modal.html');
+      document.getElementById('modalContainer').innerHTML = await modalRes.text();
+
+      initSidebar();
+      initHeader();
+
+      setPageTitle('Vendor Management', 'Manage suppliers and contractors');
+      updateUserInfo();
+    }
+
+    // Initialize page
+    async function initVendorsPage() {
+      if (!initializePage('vendors')) return;
+
+      await loadComponents();
+
+      const canAddVendor = canCreate('vendors');
+      document.getElementById('addVendorBtn').style.display = canAddVendor ? 'flex' : 'none';
+      document.getElementById('addFirstVendorBtn').style.display = canAddVendor ? 'inline-flex' : 'none';
+
+      setupEventListeners();
+
+      await Promise.all([
+        loadVendorStats(),
+        loadVendors()
+      ]);
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      document.getElementById('addVendorBtn')?.addEventListener('click', () => {
+        window.location.href = 'vendor-form.html';
+      });
+
+      document.getElementById('addFirstVendorBtn')?.addEventListener('click', () => {
+        window.location.href = 'vendor-form.html';
+      });
+
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', debounce(() => {
+        applyFilters();
+      }, 300));
+
+      document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+      document.getElementById('statusFilter').addEventListener('change', applyFilters);
+      document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+
+      // // Set today's date as default for payment
+      // document.getElementById('paymentDate').valueAsDate = new Date();
+    }
+
+    // Load vendor statistics
+    async function loadVendorStats() {
+      try {
+        const stats = await apiGet('/vendors/stats');
+        statsData = {
+          totalVendors: stats.totalVendors || 0,
+          activeVendors: stats.activeVendors || 0,
+          totalDueAmount: stats.totalDueAmount || 0
+        };
+        updateStatsDisplay();
+      } catch (error) {
+        console.error('Error loading vendor stats:', error);
+        updateStatsDisplay();
+      }
+    }
+
+    // Update stats display
+    function updateStatsDisplay() {
+      document.getElementById('totalVendorsCount').textContent = statsData.totalVendors;
+      document.getElementById('activeVendorsCount').textContent = statsData.activeVendors;
+      document.getElementById('totalDuesAmount').textContent = formatCurrency(statsData.totalDueAmount);
+    }
+
+    // Load vendors with pagination
+    async function loadVendors(page = 0) {
+      try {
+        showLoader();
+
+        const params = new URLSearchParams({
+          page: page,
+          size: itemsPerPage,
+          sort: 'name'
+        });
+
+        if (currentFilters.search && currentFilters.search.trim() !== '') {
+          params.append('search', currentFilters.search.trim());
+        }
+
+        if (currentFilters.category && currentFilters.category !== '') {
+          params.append('category', currentFilters.category);
+        }
+
+        if (currentFilters.status && currentFilters.status !== '') {
+          params.append('status', currentFilters.status);
+        }
+
+        const data = await apiGet(`/vendors?${params.toString()}`);
+
+        currentVendors = data.content.vendors || [];
+        currentPage = data.content.number || 0;
+        totalPages = data.content.totalPages || 0;
+
+        hideLoader();
+        renderVendors();
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+        showEmptyState();
+      }
+    }
+
+    // Apply filters
+    function applyFilters() {
+      currentFilters.search = document.getElementById('searchInput').value;
+      currentFilters.category = document.getElementById('categoryFilter').value;
+      currentFilters.status = document.getElementById('statusFilter').value;
+      loadVendors(0);
+    }
+
+    // Clear filters
+    function clearFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('categoryFilter').value = '';
+      document.getElementById('statusFilter').value = '';
+      currentFilters = { search: '', category: '', status: '' };
+      loadVendors(0);
+    }
+
+    // Render vendors table
+    function renderVendors() {
+      const loadingState = document.getElementById('loadingState');
+      const tableContainer = document.getElementById('tableContainer');
+      const emptyState = document.getElementById('emptyState');
+
+      loadingState.style.display = 'none';
+
+      if (currentVendors.length === 0) {
+        tableContainer.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      tableContainer.style.display = 'block';
+
+      const tbody = document.getElementById('vendorsTableBody');
+      tbody.innerHTML = currentVendors.map(vendor => `
+        <tr>
+          <td>
+            <div style="font-weight: 600; margin-bottom: 2px;">${escapeHtml(vendor.name)}</div>
+            ${vendor.email ? `<div style="font-size: 12px; color: var(--gray-500);">✉️ ${escapeHtml(vendor.email)}</div>` : ''}
+          </td>
+          <td>${escapeHtml(vendor.contactPerson || '-')}</td>
+          <td>
+            <span style="font-size: 14px;">📞</span> ${escapeHtml(vendor.phone || '-')}
+          </td>
+          <td>
+            <span class="badge badge-outline">${escapeHtml(vendor.category)}</span>
+          </td>
+          <td>
+            ${vendor.dueAmount > 0 ? `
+              <span style="font-weight: 700; color: var(--danger);">${formatCurrency(vendor.dueAmount)}</span>
+            ` : `
+              <span style="color: var(--success); font-size: 14px;">✓ No Dues</span>
+            `}
+          </td>
+          <td style="font-size: 13px; color: var(--gray-600);">
+            ${escapeHtml(vendor.paymentTerms || '-')}
+          </td>
+          <td>${getStatusBadge(vendor.status)}</td>
+          <td>
+            <div style="display: flex; gap: 8px; justify-content: center;">
+              <button onclick="viewVendor('${vendor.id}')" class="btn btn-sm btn-outline" title="View Details">
+                👁️
+              </button>
+              ${vendor.dueAmount > 0 && canEdit('vendors') ? `
+                <button onclick="openPaymentModal('${vendor.id}', '${escapeHtml(vendor.name)}', ${vendor.dueAmount})" class="btn btn-sm" style="background: var(--success); color: white;" title="Record Payment">
+                  💰
+                </button>
+              ` : ''}
+              ${canEdit('vendors') ? `
+                <button onclick="editVendor('${vendor.id}')" class="btn btn-sm btn-outline" title="Edit">
+                  ✏️
+                </button>
+              ` : ''}
+              ${canDelete('vendors') ? `
+                <button onclick="deleteVendor('${vendor.id}', '${escapeHtml(vendor.name)}')" class="btn btn-sm btn-danger" title="Delete">
+                  🗑️
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      renderPagination();
+    }
+
+    // Render pagination
+    function renderPagination() {
+      const container = document.getElementById('paginationContainer');
+
+      if (totalPages <= 1) {
+        container.style.display = 'none';
+        return;
+      }
+
+      container.style.display = 'flex';
+
+      let html = `
+        <button class="pagination-btn" ${currentPage === 0 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+          ← Previous
+        </button>
+      `;
+
+      for (let i = 0; i < totalPages; i++) {
+        if (i === 0 || i === totalPages - 1 || (i >= currentPage - 1 && i <= currentPage + 1)) {
+          html += `
+            <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+              ${i + 1}
+            </button>
+          `;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+          html += '<span style="padding: 8px;">...</span>';
+        }
+      }
+
+      html += `
+        <button class="pagination-btn" ${currentPage === totalPages - 1 ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+          Next →
+        </button>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    // Change page
+    function changePage(page) {
+      if (page < 0 || page >= totalPages) return;
+      loadVendors(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // View vendor details
+    async function viewVendor(vendorId) {
+      try {
+        showLoader();
+        let data = await apiGet(`/vendors/${vendorId}`);
+        const vendor = data.content;
+        hideLoader();
+
+        showDetailsModal('Vendor Details', {
+          'Vendor Name': vendor.name,
+          'Contact Person': vendor.contactPerson || '-',
+          'Phone': vendor.phone || '-',
+          'Email': vendor.email || '-',
+          'Category': vendor.category,
+          'Payment Terms': vendor.paymentTerms || '-',
+          'Address': vendor.address || '-',
+          'Due Amount': formatCurrency(vendor.dueAmount || 0),
+          'Status': vendor.status
+        });
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+
+    // Edit vendor
+    function editVendor(vendorId) {
+      window.location.href = `vendor-form.html?id=${vendorId}`;
+    }
+
+    // Delete vendor
+    async function deleteVendor(vendorId, vendorName) {
+      const confirmed = await confirmDialog(
+        `Are you sure you want to delete vendor "${vendorName}"? This action cannot be undone.`
+      );
+
+      if (!confirmed) return;
+
+      try {
+        showLoader();
+        await apiDelete(`/vendors/${vendorId}`);
+        hideLoader();
+
+        showToast('Vendor deleted successfully', 'success');
+
+        await loadVendorStats();
+
+        if (currentVendors.length === 1 && currentPage > 0) {
+          loadVendors(currentPage - 1);
+        } else {
+          loadVendors(currentPage);
+        }
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+
+    function openPaymentModal(vendorId, vendorName, maxAmount) {
+      paymentData = {
+        vendorId,
+        vendorName,
+        maxAmount
+      };
+
+      showFormModal(
+        `Record Payment - ${vendorName}`,
+        [
+          {
+            type: 'number',
+            name: 'amount',
+            label: `Payment Amount (Max: ${formatCurrency(maxAmount)})`,
+            required: true
+          },
+          {
+            type: 'date',
+            name: 'paymentDate',
+            label: 'Payment Date',
+            required: true,
+            value: new Date().toISOString().split('T')[0]
+          },
+          {
+            type: 'select',
+            name: 'paymentMethod',
+            label: 'Payment Method',
+            required: true,
+            options: [
+              { value: '', label: 'Select Method' },
+              { value: 'Bank Transfer', label: 'Bank Transfer' },
+              { value: 'Cash', label: 'Cash' },
+              { value: 'Cheque', label: 'Cheque' },
+              { value: 'UPI', label: 'UPI' },
+              { value: 'Other', label: 'Other' }
+            ]
+          },
+          {
+            type: 'text',
+            name: 'referenceNumber',
+            label: 'Reference Number'
+          },
+          {
+            type: 'textarea',
+            name: 'remarks',
+            label: 'Remarks'
+          }
+        ],
+        async (formData) => {
+          await submitPayment(formData);
+        }
+      );
+    }
+
+    async function submitPayment(formData) {
+      const amount = parseFloat(formData.amount);
+
+      if (!amount || amount <= 0) {
+        showToast('Payment amount must be greater than 0', 'error');
+        return;
+      }
+
+      if (amount > paymentData.maxAmount) {
+        showToast(
+          `Payment amount cannot exceed ${formatCurrency(paymentData.maxAmount)}`,
+          'error'
+        );
+        return;
+      }
+
+      const paymentMethod = formData.paymentMethod;
+      if (!paymentMethod) {
+        showToast(
+          `Specify Payment Method`,
+          'error'
+        );
+        return;
+      }
+
+      const paymentRequest = {
+        amount: amount,
+        paymentDate: formData.paymentDate,
+        paymentMethod: formData.paymentMethod,
+        referenceNumber: formData.referenceNumber || null,
+        remarks: formData.remarks || null
+      };
+
+      try {
+        showLoader();
+
+        await apiPost(
+          `/vendors/${paymentData.vendorId}/payment`,
+          paymentRequest
+        );
+
+        hideLoader();
+
+        showToast('Payment recorded successfully!', 'success');
+
+        await loadVendorStats();
+        await loadVendors(currentPage);
+
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+
+    // Show/hide states
+    function showEmptyState() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+    }
+
+    function showLoader() {
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'none';
+    }
+
+    function hideLoader() {
+      document.getElementById('loadingState').style.display = 'none';
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initVendorsPage);
+  </script>
+
+</body>
+
+</html>

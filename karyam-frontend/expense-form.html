@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARYAM - Expense Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body>
+  
+  <!-- Include Sidebar -->
+  <div id="sidebarContainer"></div>
+  
+  <!-- Main Content -->
+  <div style="margin-left: var(--sidebar-width); padding-top: var(--header-height);">
+    
+    <!-- Include Header -->
+    <div id="headerContainer"></div>
+    
+    <!-- Expense Form Content -->
+    <main style="padding: 32px;">
+      
+      <!-- Page Header -->
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
+        <button onclick="goBack()" class="btn btn-outline">
+          ← Back
+        </button>
+        <div>
+          <h1 id="pageTitle" style="font-size: 2rem; font-weight: 800; margin-bottom: 4px;">New Expense</h1>
+          <p style="color: var(--gray-600); font-size: 14px;">Fill in expense details</p>
+        </div>
+      </div>
+      
+      <!-- Form Card -->
+      <div class="card" style="max-width: 800px;">
+        <form id="expenseForm">
+          
+          <!-- Project & Vendor -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Project & Vendor
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div class="form-group">
+                <label class="form-label">Project <span style="color: var(--danger);">*</span></label>
+                <select id="projectId" name="projectId" class="form-select" required>
+                  <option value="">Select Project</option>
+                  <!-- Projects will be loaded dynamically -->
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Vendor (Optional)</label>
+                <select id="vendorId" name="vendorId" class="form-select">
+                  <option value="">Select Vendor</option>
+                  <!-- Vendors will be loaded dynamically -->
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Expense Details -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Expense Details
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div class="form-group">
+                <label class="form-label">Category <span style="color: var(--danger);">*</span></label>
+                <select id="category" name="category" class="form-select" required>
+                  <option value="">Select Category</option>
+                  <option value="MATERIALS">Materials</option>
+                  <option value="LABOR">Labor</option>
+                  <option value="EQUIPMENT">Equipment</option>
+                  <option value="TRANSPORT">Transport</option>
+                  <option value="UTILITIES">Utilities</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Amount (₹) <span style="color: var(--danger);">*</span></label>
+                <input type="number" id="amount" name="amount" class="form-input" required min="0.01" step="0.01" placeholder="0.00">
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div class="form-group">
+                <label class="form-label">Expense Date <span style="color: var(--danger);">*</span></label>
+                <input type="date" id="date" name="date" class="form-input" required>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Bill/Invoice Number</label>
+                <input type="text" id="billNumber" name="billNumber" class="form-input" placeholder="Optional">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Description <span style="color: var(--danger);">*</span></label>
+              <textarea id="description" name="description" class="form-input" rows="4" required placeholder="Provide details about this expense..."></textarea>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 24px; border-top: 2px solid var(--gray-200);">
+            <button type="button" onclick="goBack()" class="btn btn-outline">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <span id="submitBtnText">Submit Expense</span>
+            </button>
+          </div>
+          
+        </form>
+      </div>
+      
+    </main>
+  </div>
+
+  <!-- Include Modal -->
+  <div id="modalContainer"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+  <script src="./js/api-utils.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/role-permission.js"></script>
+  <script src="./js/common.js"></script>
+  
+  <script>
+    let expenseId = null;
+    let isEditMode = false;
+    
+    // Load components
+    async function loadComponents() {
+      const sidebarRes = await fetch('./components/sidebar.html');
+      document.getElementById('sidebarContainer').innerHTML = await sidebarRes.text();
+      
+      const headerRes = await fetch('./components/header.html');
+      document.getElementById('headerContainer').innerHTML = await headerRes.text();
+      
+      const modalRes = await fetch('./components/modal.html');
+      document.getElementById('modalContainer').innerHTML = await modalRes.text();
+
+      initSidebar();
+      initHeader();
+      
+      updateUserInfo();
+    }
+    
+    // Initialize page
+    async function initExpenseFormPage() {
+      if (!initializePage('expenses')) return;
+      
+      await loadComponents();
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      expenseId = urlParams.get('id');
+      isEditMode = !!expenseId;
+      
+      if (isEditMode) {
+        document.getElementById('pageTitle').textContent = 'Edit Expense';
+        document.getElementById('submitBtnText').textContent = 'Update Expense';
+        setPageTitle('Edit Expense', 'Update expense details');
+      } else {
+        setPageTitle('New Expense', 'Fill in expense details');
+        document.getElementById('date').valueAsDate = new Date();
+      }
+      
+      await Promise.all([
+        loadProjects(),
+        loadVendors()
+      ]);
+      
+      if (isEditMode) {
+        await loadExpenseData();
+      }
+      
+      setupFormHandlers();
+    }
+    
+    // Load projects
+    async function loadProjects() {
+      try {
+        const data = await apiGet('/projects/name');
+        const projects = data.content || [];
+        
+        const select = document.getElementById('projectId');
+        select.innerHTML = '<option value="">Select Project</option>' +
+          projects.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+      } catch (error) {
+        console.error('Error loading projects:', error);
+      }
+    }
+    
+    // Load vendors
+    async function loadVendors() {
+      try {
+        const data = await apiGet('/vendors/name');
+        const vendors = data.content || [];
+        
+        const select = document.getElementById('vendorId');
+        select.innerHTML = '<option value="">Select Vendor</option>' +
+          vendors.map(v => `<option value="${v.id}">${escapeHtml(v.name)}</option>`).join('');
+      } catch (error) {
+        console.error('Error loading vendors:', error);
+      }
+    }
+    
+    // Load expense data for editing
+    async function loadExpenseData() {
+      try {
+        showLoader();
+        let data = await apiGet(`/expenses/${expenseId}`);
+        const expense = data.content;
+        
+        document.getElementById('projectId').value = expense.projectId || '';
+        document.getElementById('vendorId').value = expense.vendorId || '';
+        document.getElementById('category').value = expense.category || '';
+        document.getElementById('amount').value = expense.amount || '';
+        document.getElementById('date').value = expense.date || '';
+        document.getElementById('billNumber').value = expense.billNumber || '';
+        document.getElementById('description').value = expense.description || '';
+        
+        hideLoader();
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+        setTimeout(() => goBack(), 2000);
+      }
+    }
+    
+    // Setup form handlers
+    function setupFormHandlers() {
+      const form = document.getElementById('expenseForm');
+      
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        
+        await saveExpense();
+      });
+    }
+    
+    // Save expense
+    async function saveExpense() {
+      const formData = {
+        projectId: document.getElementById('projectId').value,
+        vendorId: document.getElementById('vendorId').value || null,
+        category: document.getElementById('category').value,
+        amount: parseFloat(document.getElementById('amount').value),
+        date: document.getElementById('date').value,
+        billNumber: document.getElementById('billNumber').value.trim() || null,
+        description: document.getElementById('description').value.trim()
+      };
+      
+      if (formData.amount <= 0) {
+        showToast('Amount must be greater than 0', 'error');
+        return;
+      }
+      
+      try {
+        showLoader();
+        
+        if (isEditMode) {
+          await apiPut(`/expenses/${expenseId}`, formData);
+          showToast('Expense updated successfully!', 'success');
+        } else {
+          await apiPost('/expenses', formData);
+          showToast('Expense submitted successfully!', 'success');
+        }
+        
+        hideLoader();
+        setTimeout(() => goBack(), 1000);
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+    
+    // Go back to expenses list
+    function goBack() {
+      window.location.href = 'expenses.html';
+    }
+    
+    // // Show/hide loader
+    // function showLoader() {
+    //   // Could add a loading overlay here
+    // }
+    
+    // function hideLoader() {
+    //   // Remove loading overlay
+    // }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initExpenseFormPage);
+  </script>
+  
+</body>
+</html>

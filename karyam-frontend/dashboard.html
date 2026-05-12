@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARYAM - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  
+  <!-- Include Sidebar -->
+  <div id="sidebarContainer"></div>
+  
+  <!-- Main Content -->
+  <div style="margin-left: var(--sidebar-width); padding-top: var(--header-height);">
+    
+    <!-- Include Header -->
+    <div id="headerContainer"></div>
+    
+    <!-- Dashboard Content -->
+    <main style="padding: 32px;">
+      
+      <!-- Stats Cards Row -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px;">
+        
+        <!-- Total Projects Card -->
+        <div class="stat-card">
+          <div style="display: flex; align-items: start; justify-content: between; gap: 16px;">
+            <div style="flex: 1;">
+              <div style="color: var(--gray-600); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                Total Projects
+              </div>
+              <div id="totalProjects" style="font-size: 2.5rem; font-weight: 800; color: var(--gray-900); line-height: 1;">
+                0
+              </div>
+              <div style="margin-top: 8px; font-size: 13px; color: var(--success);">
+                <span>↑ 12%</span> from last month
+              </div>
+            </div>
+            <div style="width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary-light), var(--primary)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 28px;">
+              🏗️
+            </div>
+          </div>
+        </div>
+        
+        <!-- Active Labors Card -->
+        <div class="stat-card">
+          <div style="display: flex; align-items: start; justify-content: between; gap: 16px;">
+            <div style="flex: 1;">
+              <div style="color: var(--gray-600); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                Active Labors
+              </div>
+              <div id="activeLabors" style="font-size: 2.5rem; font-weight: 800; color: var(--gray-900); line-height: 1;">
+                0
+              </div>
+              <div style="margin-top: 8px; font-size: 13px; color: var(--info);">
+                <span>→ 0%</span> from last month
+              </div>
+            </div>
+            <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #60A5FA, var(--info)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 28px;">
+              👷
+            </div>
+          </div>
+        </div>
+        
+        <!-- Pending Approvals Card -->
+        <div class="stat-card">
+          <div style="display: flex; align-items: start; justify-content: between; gap: 16px;">
+            <div style="flex: 1;">
+              <div style="color: var(--gray-600); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                Pending Approvals
+              </div>
+              <div id="pendingApprovals" style="font-size: 2.5rem; font-weight: 800; color: var(--gray-900); line-height: 1;">
+                0
+              </div>
+              <div style="margin-top: 8px; font-size: 13px; color: var(--warning);">
+                <span>⚠</span> Needs attention
+              </div>
+            </div>
+            <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #FCD34D, var(--warning)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 28px;">
+              ⏱️
+            </div>
+          </div>
+        </div>
+        
+        <!-- Monthly Expenses Card -->
+        <div class="stat-card">
+          <div style="display: flex; align-items: start; justify-content: between; gap: 16px;">
+            <div style="flex: 1;">
+              <div style="color: var(--gray-600); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                Monthly Expenses
+              </div>
+              <div id="monthlyExpenses" style="font-size: 2rem; font-weight: 800; color: var(--gray-900); line-height: 1;">
+                ₹0
+              </div>
+              <div style="margin-top: 8px; font-size: 13px; color: var(--danger);">
+                <span>↑ 8%</span> from last month
+              </div>
+            </div>
+            <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #F87171, var(--danger)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 28px;">
+              💰
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+      <!-- Charts & Tables Row -->
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 32px;">
+        
+        <!-- Expense Trend Chart -->
+        <div class="card">
+          <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 20px;">Expense Trend</h3>
+          <canvas id="expenseChart" style="max-height: 300px;"></canvas>
+        </div>
+        
+        <!-- Budget Alerts -->
+        <div class="card">
+          <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 20px;">Budget Alerts</h3>
+          <div id="budgetAlerts" style="space-y: 12px;">
+            <!-- Budget alerts will be populated here -->
+          </div>
+        </div>
+        
+      </div>
+      
+      <!-- Recent Activities Row -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        
+        <!-- Recent Expenses -->
+        <div class="card">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+            <h3 style="font-size: 1.25rem; font-weight: 700;">Recent Expenses</h3>
+            <a href="expenses.html" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 14px;">View All →</a>
+          </div>
+          
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="recentExpensesTable">
+                <tr>
+                  <td colspan="4" class="empty-state">
+                    <div class="empty-state-text">No recent expenses</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Attendance Summary -->
+        <div class="card">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+            <h3 style="font-size: 1.25rem; font-weight: 700;">Today's Attendance</h3>
+            <a href="attendance.html" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 14px;">Mark →</a>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+            <div style="background: var(--success-light); border-radius: var(--radius-lg); padding: 16px; text-align: center;">
+              <div style="font-size: 2rem; font-weight: 800; color: var(--success);" id="presentCount">0</div>
+              <div style="color: var(--success); font-weight: 600; font-size: 13px; margin-top: 4px;">PRESENT</div>
+            </div>
+            <div style="background: var(--danger-light); border-radius: var(--radius-lg); padding: 16px; text-align: center;">
+              <div style="font-size: 2rem; font-weight: 800; color: var(--danger);" id="absentCount">0</div>
+              <div style="color: var(--danger); font-weight: 600; font-size: 13px; margin-top: 4px;">ABSENT</div>
+            </div>
+            <div style="background: var(--warning-light); border-radius: var(--radius-lg); padding: 16px; text-align: center;">
+              <div style="font-size: 2rem; font-weight: 800; color: var(--warning);" id="halfDayCount">0</div>
+              <div style="color: var(--warning); font-weight: 600; font-size: 13px; margin-top: 4px;">HALF DAY</div>
+            </div>
+            <div style="background: var(--info-light); border-radius: var(--radius-lg); padding: 16px; text-align: center;">
+              <div style="font-size: 2rem; font-weight: 800; color: var(--info);" id="overtimeCount">0</div>
+              <div style="color: var(--info); font-weight: 600; font-size: 13px; margin-top: 4px;">OVERTIME</div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+  <script src="./js/api-utils.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/role-permission.js"></script>
+  <script src="./js/common.js"></script>
+  
+  <script>
+    // Load sidebar and header
+    async function loadComponents() {
+      const sidebarRes = await fetch('./components/sidebar.html');
+      document.getElementById('sidebarContainer').innerHTML = await sidebarRes.text();
+      
+      const headerRes = await fetch('./components/header.html');
+      document.getElementById('headerContainer').innerHTML = await headerRes.text();
+
+      initSidebar();
+      initHeader();
+      
+      setPageTitle('Dashboard', 'Overview of your construction operations');
+      updateUserInfo();
+    }
+    
+    // Initialize dashboard
+    async function initDashboard() {
+      if (!initializePage('dashboard')) return;
+      
+      await loadComponents();
+      await loadDashboardStats();
+      await loadRecentExpenses();
+      await loadAttendanceSummary();
+      await loadBudgetAlerts();
+      initExpenseChart();
+    }
+    
+    // Load dashboard stats
+    async function loadDashboardStats() {
+      try {
+        const stats = await apiGet('/dashboard/stats');
+        
+        document.getElementById('totalProjects').textContent = stats.totalProjects || 0;
+        document.getElementById('activeLabors').textContent = stats.activeLabors || 0;
+        document.getElementById('pendingApprovals').textContent = stats.pendingApprovals || 0;
+        document.getElementById('monthlyExpenses').textContent = formatCurrency(stats.monthlyExpenses || 0);
+      } catch (error) {
+        console.error('Failed to load stats:', error);
+      }
+    }
+    
+    // Load recent expenses
+    async function loadRecentExpenses() {
+      try {
+        let data = await apiGet('/expenses?page=0&size=5&sort=createdAt,desc');
+        const expenses = data.content.expenses;
+        const tbody = document.getElementById('recentExpensesTable');
+        
+        if (expenses && expenses.length > 0) {
+          tbody.innerHTML = expenses.map(expense => `
+            <tr>
+              <td style="font-weight: 600;">${expense.projectName}</td>
+              <td>${expense.category}</td>
+              <td style="font-weight: 700; color: var(--primary);">${formatCurrency(expense.amount)}</td>
+              <td>${getStatusBadge(expense.status)}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (error) {
+        console.error('Failed to load recent expenses:', error);
+      }
+    }
+    
+    // Load attendance summary
+    async function loadAttendanceSummary() {
+      try {
+        let data = await apiGet('/attendance/today/summary');
+        const summary = data.content;
+        
+        document.getElementById('presentCount').textContent = summary.present || 0;
+        document.getElementById('absentCount').textContent = summary.absent || 0;
+        document.getElementById('halfDayCount').textContent = summary.halfDay || 0;
+        document.getElementById('overtimeCount').textContent = summary.overtime || 0;
+      } catch (error) {
+        console.error('Failed to load attendance summary:', error);
+      }
+    }
+    
+    // Load budget alerts
+    async function loadBudgetAlerts() {
+      try {
+        const alerts = await apiGet('/dashboard/budget/alerts');
+        const container = document.getElementById('budgetAlerts');
+        
+        if (alerts && alerts.length > 0) {
+          container.innerHTML = alerts.slice(0, 4).map(alert => `
+            <div style="padding: 12px; border-left: 4px solid ${alert.level === 'CRITICAL' ? 'var(--danger)' : 'var(--warning)'}; background: ${alert.level === 'CRITICAL' ? 'var(--danger-light)' : 'var(--warning-light)'}; border-radius: var(--radius);">
+              <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${alert.projectName}</div>
+              <div style="font-size: 13px; color: var(--gray-700);">
+                ${alert.percentage}% of budget used (${formatCurrency(alert.used)} / ${formatCurrency(alert.budget)})
+              </div>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = '<div class="empty-state"><div class="empty-state-text">No budget alerts</div></div>';
+        }
+      } catch (error) {
+        console.error('Failed to load budget alerts:', error);
+      }
+    }
+    
+    // Initialize expense chart
+    async function initExpenseChart() {
+      try {
+        const data = await apiGet('/reports/expenses');
+        
+        const ctx = document.getElementById('expenseChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.trend || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+              label: 'Expenses',
+              data: data.trend || [0, 0, 0, 0, 0, 0],
+              borderColor: getComputedStyle(document.documentElement).getPropertyValue('--primary').trim(),
+              backgroundColor: 'rgba(217, 117, 66, 0.1)',
+              tension: 0.4,
+              fill: true,
+              borderWidth: 3
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                display: false
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function(value) {
+                    return '₹' + (value / 1000) + 'k';
+                  }
+                }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Failed to load expense chart:', error);
+      }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initDashboard);
+  </script>
+  
+</body>
+</html>

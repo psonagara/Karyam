@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARYAM - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body style="background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+  
+  <div class="container" style="max-width: 1200px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;">
+      
+      <!-- Left Side - Branding -->
+      <div class="hide-mobile" style="color: white;">
+        <div style="margin-bottom: 32px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+            <div style="width: 56px; height: 56px; background: var(--primary); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 32px;">
+              🏗️
+            </div>
+            <div>
+              <h1 style="color: white; font-size: 3rem; font-weight: 800; letter-spacing: -1px; line-height: 1;">KARYAM</h1>
+              <p style="color: rgba(255, 255, 255, 0.7); font-size: 14px; margin-top: 4px;">Construction Operations Platform</p>
+            </div>
+          </div>
+        </div>
+        
+        <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 32px; border: 1px solid rgba(255, 255, 255, 0.2);">
+          <h2 style="color: white; font-size: 1.75rem; margin-bottom: 16px;">Manage Your Construction Projects</h2>
+          <ul style="list-style: none; space-y: 12px;">
+            <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+              <span style="font-size: 24px;">📊</span>
+              <div>
+                <strong style="color: white; display: block;">Real-time Dashboard</strong>
+                <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">Monitor all projects and operations in one place</span>
+              </div>
+            </li>
+            <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+              <span style="font-size: 24px;">👷</span>
+              <div>
+                <strong style="color: white; display: block;">Labor Management</strong>
+                <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">Track attendance, payroll, and workforce efficiently</span>
+              </div>
+            </li>
+            <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+              <span style="font-size: 24px;">💰</span>
+              <div>
+                <strong style="color: white; display: block;">Expense Tracking</strong>
+                <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">Complete financial oversight and budget control</span>
+              </div>
+            </li>
+            <li style="display: flex; align-items: start; gap: 12px;">
+              <span style="font-size: 24px;">✅</span>
+              <div>
+                <strong style="color: white; display: block;">Approval Workflows</strong>
+                <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">Streamlined authorization and accountability</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Right Side - Login/Register Forms -->
+      <div>
+        <div class="card" style="padding: 48px;">
+          <!-- Tabs -->
+          <div style="display: flex; gap: 4px; margin-bottom: 32px; background: var(--gray-100); padding: 4px; border-radius: var(--radius-lg);">
+            <button id="loginTab" class="tab-btn active" onclick="switchTab('login')" style="flex: 1; padding: 12px; border: none; background: white; border-radius: var(--radius); cursor: pointer; font-weight: 600; font-family: var(--font-display); transition: var(--transition); box-shadow: var(--shadow-sm);">
+              Login
+            </button>
+            <button id="registerTab" class="tab-btn" onclick="switchTab('register')" style="flex: 1; padding: 12px; border: none; background: transparent; border-radius: var(--radius); cursor: pointer; font-weight: 600; font-family: var(--font-display); transition: var(--transition); color: var(--gray-600);">
+              Register
+            </button>
+          </div>
+          
+          <!-- Login Form -->
+          <form id="loginForm" style="display: block;">
+            <h2 style="margin-bottom: 8px; font-size: 1.75rem;">Welcome Back</h2>
+            <p style="color: var(--gray-600); margin-bottom: 32px; font-size: 14px;">Enter your credentials to access your account</p>
+            
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" id="loginEmail" class="form-input" placeholder="you@company.com" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Role</label>
+              <select id="loginRole" class="form-select" required>
+                <option value="">Select your role</option>
+                <option value="ADMIN">Administrator</option>
+                <option value="SITE_MANAGER">Site Manager</option>
+                <option value="HR">HR Manager</option>
+                <option value="ACCOUNTANT">Accountant</option>
+              </select>
+            </div>
+            
+            <div style="margin-bottom: 24px; text-align: right;">
+              <a href="#" style="color: var(--primary); text-decoration: none; font-size: 14px; font-weight: 500;">Forgot Password?</a>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+              <span id="loginBtnText">Sign In</span>
+              <span id="loginLoader" class="loader" style="display: none;"></span>
+            </button>
+          </form>
+          
+          <!-- Register Form -->
+          <form id="registerForm" style="display: none;">
+            <h2 style="margin-bottom: 8px; font-size: 1.75rem;">Create Account</h2>
+            <p style="color: var(--gray-600); margin-bottom: 32px; font-size: 14px;">Fill in your details to get started</p>
+            
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="registerName" class="form-input" placeholder="John Doe" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" id="registerEmail" class="form-input" placeholder="you@company.com" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" id="registerPassword" class="form-input" placeholder="Minimum 8 characters" required minlength="8">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Role</label>
+              <select id="registerRole" class="form-select" required>
+                <option value="">Select your role</option>
+                <option value="ADMIN">Administrator</option>
+                <option value="SITE_MANAGER">Site Manager</option>
+                <option value="HR">HR Manager</option>
+                <option value="ACCOUNTANT">Accountant</option>
+              </select>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 24px;">
+              <span id="registerBtnText">Create Account</span>
+              <span id="registerLoader" class="loader" style="display: none;"></span>
+            </button>
+          </form>
+        </div>
+        
+        <!-- Footer -->
+        <p style="text-align: center; margin-top: 24px; color: rgba(255, 255, 255, 0.7); font-size: 14px;">
+          © 2024 KARYAM. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="./js/api-utils.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/common.js"></script>
+  <script src="./js/role-permission.js"></script>
+  
+  <script>
+    // Auto-redirect if already logged in
+    autoRedirectIfLoggedIn();
+    
+    // Tab switching
+    function switchTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const loginTab = document.getElementById('loginTab');
+      const registerTab = document.getElementById('registerTab');
+      
+      if (tab === 'login') {
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+        loginTab.style.background = 'white';
+        loginTab.style.boxShadow = 'var(--shadow-sm)';
+        loginTab.style.color = 'var(--gray-900)';
+        registerTab.style.background = 'transparent';
+        registerTab.style.boxShadow = 'none';
+        registerTab.style.color = 'var(--gray-600)';
+      } else {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+        registerTab.style.background = 'white';
+        registerTab.style.boxShadow = 'var(--shadow-sm)';
+        registerTab.style.color = 'var(--gray-900)';
+        loginTab.style.background = 'transparent';
+        loginTab.style.boxShadow = 'none';
+        loginTab.style.color = 'var(--gray-600)';
+      }
+    }
+    
+    // Login form submission
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const role = document.getElementById('loginRole').value;
+      
+      // Validation
+      if (!email || !password || !role) {
+        showToast('Please fill all fields', 'error');
+        return;
+      }
+      
+      if (!isValidEmail(email)) {
+        showToast('Please enter a valid email', 'error');
+        return;
+      }
+      
+      // Show loading
+      const btnText = document.getElementById('loginBtnText');
+      const loader = document.getElementById('loginLoader');
+      btnText.style.display = 'none';
+      loader.style.display = 'inline-block';
+      
+      try {
+        await login(email, password, role);
+        showToast('Login successful! Redirecting...', 'success');
+        setTimeout(() => {
+          redirectToDashboard();
+        }, 1000);
+      } catch (error) {
+        handleApiError(error);
+      } finally {
+        btnText.style.display = 'inline';
+        loader.style.display = 'none';
+      }
+    });
+    
+    // Register form submission
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const role = document.getElementById('registerRole').value;
+      
+      // Validation
+      if (!name || !email || !password || !role) {
+        showToast('Please fill all fields', 'error');
+        return;
+      }
+      
+      if (!isValidEmail(email)) {
+        showToast('Please enter a valid email', 'error');
+        return;
+      }
+      
+      if (password.length < 8) {
+        showToast('Password must be at least 8 characters', 'error');
+        return;
+      }
+      
+      // Show loading
+      const btnText = document.getElementById('registerBtnText');
+      const loader = document.getElementById('registerLoader');
+      btnText.style.display = 'none';
+      loader.style.display = 'inline-block';
+      
+      try {
+        await register(name, email, password, role);
+        showToast('Registration successful! Please login.', 'success');
+        setTimeout(() => {
+          switchTab('login');
+          document.getElementById('loginEmail').value = email;
+        }, 1500);
+      } catch (error) {
+        handleApiError(error);
+      } finally {
+        btnText.style.display = 'inline';
+        loader.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARYAM - Vendor Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body>
+  
+  <!-- Include Sidebar -->
+  <div id="sidebarContainer"></div>
+  
+  <!-- Main Content -->
+  <div style="margin-left: var(--sidebar-width); padding-top: var(--header-height);">
+    
+    <!-- Include Header -->
+    <div id="headerContainer"></div>
+    
+    <!-- Vendor Form Content -->
+    <main style="padding: 32px;">
+      
+      <!-- Page Header -->
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
+        <button onclick="goBack()" class="btn btn-outline">
+          ← Back
+        </button>
+        <div>
+          <h1 id="pageTitle" style="font-size: 2rem; font-weight: 800; margin-bottom: 4px;">Add Vendor</h1>
+          <p style="color: var(--gray-600); font-size: 14px;">Fill in vendor details</p>
+        </div>
+      </div>
+      
+      <!-- Form Card -->
+      <div class="card" style="max-width: 800px;">
+        <form id="vendorForm">
+          
+          <!-- Basic Information -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Basic Information
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div class="form-group">
+                <label class="form-label">Vendor Name <span style="color: var(--danger);">*</span></label>
+                <input type="text" id="name" name="name" class="form-input" required placeholder="Company name">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Contact Person <span style="color: var(--danger);">*</span></label>
+                <input type="text" id="contactPerson" name="contactPerson" class="form-input" required placeholder="Contact person name">
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div class="form-group">
+                <label class="form-label">Phone Number <span style="color: var(--danger);">*</span></label>
+                <input type="tel" id="phone" name="phone" class="form-input" required placeholder="10-digit number" pattern="[0-9]{10}" maxlength="10">
+                <small style="color: var(--gray-500);">Enter 10-digit mobile number</small>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="vendor@example.com">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Business Details -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Business Details
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div class="form-group">
+                <label class="form-label">Category <span style="color: var(--danger);">*</span></label>
+                <select id="category" name="category" class="form-select" required>
+                  <option value="">Select Category</option>
+                  <option value="MATERIALS">Materials</option>
+                  <option value="EQUIPMENT">Equipment</option>
+                  <option value="SERVICES">Services</option>
+                  <option value="SUBCONTRACTOR">Subcontractor</option>
+                  <option value="TRANSPORT">Transport</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Payment Terms</label>
+                <input type="text" id="paymentTerms" name="paymentTerms" class="form-input" placeholder="e.g., Net 30 days">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Address</label>
+              <textarea id="address" name="address" class="form-input" rows="3" placeholder="Complete address with city and state"></textarea>
+            </div>
+          </div>
+          
+          <!-- Financial & Status -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Financial & Status
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div class="form-group">
+                <label class="form-label">Initial Due Amount (₹)</label>
+                <input type="number" id="dueAmount" name="dueAmount" class="form-input" value="0" min="0" step="0.01">
+                <small style="color: var(--gray-500);">Leave 0 if no initial dues</small>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Status <span style="color: var(--danger);">*</span></label>
+                <select id="status" name="status" class="form-select" required>
+                  <option value="ACTIVE">Active</option>
+                  <option value="INACTIVE">Inactive</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 24px; border-top: 2px solid var(--gray-200);">
+            <button type="button" onclick="goBack()" class="btn btn-outline">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <span id="submitBtnText">Save Vendor</span>
+            </button>
+          </div>
+          
+        </form>
+      </div>
+      
+    </main>
+  </div>
+
+  <!-- Include Modal -->
+  <div id="modalContainer"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+  <script src="./js/api-utils.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/role-permission.js"></script>
+  <script src="./js/common.js"></script>
+  
+  <script>
+    let vendorId = null;
+    let isEditMode = false;
+    
+    // Load components
+    async function loadComponents() {
+      const sidebarRes = await fetch('./components/sidebar.html');
+      document.getElementById('sidebarContainer').innerHTML = await sidebarRes.text();
+      
+      const headerRes = await fetch('./components/header.html');
+      document.getElementById('headerContainer').innerHTML = await headerRes.text();
+      
+      const modalRes = await fetch('./components/modal.html');
+      document.getElementById('modalContainer').innerHTML = await modalRes.text();
+
+      initSidebar();
+      initHeader();
+      
+      updateUserInfo();
+    }
+    
+    // Initialize page
+    async function initVendorFormPage() {
+      if (!initializePage('vendors')) return;
+      
+      await loadComponents();
+      
+      // Get vendor ID from URL if editing
+      const urlParams = new URLSearchParams(window.location.search);
+      vendorId = urlParams.get('id');
+      isEditMode = !!vendorId;
+      
+      if (isEditMode) {
+        document.getElementById('pageTitle').textContent = 'Edit Vendor';
+        document.getElementById('submitBtnText').textContent = 'Update Vendor';
+        setPageTitle('Edit Vendor', 'Update vendor details');
+        await loadVendorData();
+      } else {
+        setPageTitle('Add Vendor', 'Fill in vendor details');
+      }
+      
+      setupFormHandlers();
+    }
+    
+    // Load vendor data for editing
+    async function loadVendorData() {
+      try {
+        showLoader();
+        let data = await apiGet(`/vendors/${vendorId}`);
+        const vendor = data.content;
+        
+        document.getElementById('name').value = vendor.name || '';
+        document.getElementById('contactPerson').value = vendor.contactPerson || '';
+        document.getElementById('phone').value = vendor.phone || '';
+        document.getElementById('email').value = vendor.email || '';
+        document.getElementById('category').value = vendor.category || '';
+        document.getElementById('paymentTerms').value = vendor.paymentTerms || '';
+        document.getElementById('address').value = vendor.address || '';
+        document.getElementById('dueAmount').value = vendor.dueAmount || 0;
+        document.getElementById('status').value = vendor.status || 'ACTIVE';
+        
+        hideLoader();
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+        setTimeout(() => goBack(), 2000);
+      }
+    }
+    
+    // Setup form handlers
+    function setupFormHandlers() {
+      const form = document.getElementById('vendorForm');
+      
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        
+        await saveVendor();
+      });
+      
+      // Phone validation
+      document.getElementById('phone').addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+      });
+    }
+    
+    // Save vendor
+    async function saveVendor() {
+      const formData = {
+        name: document.getElementById('name').value.trim(),
+        contactPerson: document.getElementById('contactPerson').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        email: document.getElementById('email').value.trim() || null,
+        category: document.getElementById('category').value,
+        paymentTerms: document.getElementById('paymentTerms').value.trim() || null,
+        address: document.getElementById('address').value.trim() || null,
+        dueAmount: parseFloat(document.getElementById('dueAmount').value) || 0,
+        status: document.getElementById('status').value
+      };
+      
+      // Validate phone
+      if (!isValidPhone(formData.phone)) {
+        showToast('Please enter a valid 10-digit phone number', 'error');
+        return;
+      }
+      
+      // Validate email if provided
+      if (formData.email && !isValidEmail(formData.email)) {
+        showToast('Please enter a valid email address', 'error');
+        return;
+      }
+      
+      try {
+        showLoader();
+        
+        if (isEditMode) {
+          await apiPut(`/vendors/${vendorId}`, formData);
+          showToast('Vendor updated successfully!', 'success');
+        } else {
+          await apiPost('/vendors', formData);
+          showToast('Vendor added successfully!', 'success');
+        }
+        
+        hideLoader();
+        setTimeout(() => goBack(), 1000);
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+    
+    // Go back to vendors list
+    function goBack() {
+      window.location.href = 'vendors.html';
+    }
+    
+    // // Show/hide loader
+    // function showLoader() {
+    //   // Could add a loading overlay here
+    // }
+    
+    // function hideLoader() {
+    //   // Remove loading overlay
+    // }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initVendorFormPage);
+  </script>
+  
+</body>
+</html>

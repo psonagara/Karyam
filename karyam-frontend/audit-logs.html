@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARYAM - Audit Logs</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body>
+  
+  <!-- Include Sidebar -->
+  <div id="sidebarContainer"></div>
+  
+  <!-- Main Content -->
+  <div style="margin-left: var(--sidebar-width); padding-top: var(--header-height);">
+    
+    <!-- Include Header -->
+    <div id="headerContainer"></div>
+    
+    <!-- Audit Logs Content -->
+    <main style="padding: 32px;">
+      
+      <!-- Page Header -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Audit Logs</h1>
+          <p style="color: var(--gray-600); font-size: 14px;">Track all system activities and changes</p>
+        </div>
+        <button id="exportLogsBtn" class="btn btn-outline">
+          <span>📥</span>
+          <span>Export Logs</span>
+        </button>
+      </div>
+      
+      <!-- Stats Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px;">
+        
+        <!-- Total Activities Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--info-light); color: var(--info);">
+              📊
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Total Activities</div>
+              <div id="totalActivitiesStat" style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--info);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Today's Activities Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--success-light); color: var(--success);">
+              ✓
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Today's Activities</div>
+              <div id="todayActivitiesStat" style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--success);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Active Users Card -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--warning-light); color: var(--warning);">
+              👥
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Active Users</div>
+              <div id="activeUsersStat" style="font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--warning);">
+                <div class="loader loader-sm" style="display: inline-block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+      <!-- Filters -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div style="display: grid; grid-template-columns: 1fr auto auto auto auto auto; gap: 16px; align-items: end;">
+          
+          <!-- Search -->
+          <div class="form-group" style="margin: 0;">
+            <label class="form-label">Search Logs</label>
+            <input type="text" id="searchInput" class="form-input" placeholder="Search by user, action, or details...">
+          </div>
+          
+          <!-- Action Filter -->
+          <div class="form-group" style="margin: 0; min-width: 120px;">
+            <label class="form-label">Action</label>
+            <select id="actionFilter" class="form-select">
+              <option value="">All Actions</option>
+              <option value="CREATE">Create</option>
+              <option value="UPDATE">Update</option>
+              <option value="DELETE">Delete</option>
+              <option value="APPROVE">Approve</option>
+              <option value="REJECT">Reject</option>
+            </select>
+          </div>
+          
+          <!-- Entity Filter -->
+          <div class="form-group" style="margin: 0; min-width: 140px;">
+            <label class="form-label">Entity</label>
+            <select id="entityFilter" class="form-select">
+              <option value="">All Entities</option>
+              <option value="Project">Project</option>
+              <option value="Labor">Labor</option>
+              <option value="Expense">Expense</option>
+              <option value="Approval">Approval</option>
+              <option value="Vendor">Vendor</option>
+              <option value="Attendance">Attendance</option>
+              <option value="Payroll">Payroll</option>
+              <option value="User">User</option>
+            </select>
+          </div>
+          
+          <!-- User Filter -->
+          <div class="form-group" style="margin: 0; min-width: 140px;">
+            <label class="form-label">User</label>
+            <select id="userFilter" class="form-select">
+              <option value="">All Users</option>
+              <!-- Users will be loaded dynamically -->
+            </select>
+          </div>
+          
+          <!-- Date Range -->
+          <div class="form-group" style="margin: 0; min-width: 130px;">
+            <label class="form-label">Period</label>
+            <select id="dateRangeFilter" class="form-select">
+              <option value="1">Today</option>
+              <option value="7" selected>Last 7 Days</option>
+              <option value="30">Last 30 Days</option>
+              <option value="90">Last 90 Days</option>
+            </select>
+          </div>
+          
+          <!-- Clear Filters -->
+          <button id="clearFiltersBtn" class="btn btn-outline">
+            <span>Clear</span>
+          </button>
+          
+        </div>
+      </div>
+      
+      <!-- Audit Logs Table -->
+      <div class="card">
+        <div id="loadingState" style="text-align: center; padding: 60px;">
+          <div class="loader loader-lg" style="margin: 0 auto 16px;"></div>
+          <p style="color: var(--gray-600);">Loading audit logs...</p>
+        </div>
+        
+        <div id="tableContainer" style="display: none;">
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>User</th>
+                  <th>Action</th>
+                  <th>Entity</th>
+                  <th>Details</th>
+                  <th style="text-align: center;">View</th>
+                </tr>
+              </thead>
+              <tbody id="logsTableBody">
+                <!-- Rows will be populated here -->
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Pagination -->
+          <div id="paginationContainer" class="pagination" style="display: none;">
+            <!-- Pagination will be populated here -->
+          </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div id="emptyState" style="display: none;" class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <div class="empty-state-text">No audit logs found</div>
+          <p style="color: var(--gray-500); font-size: 14px; margin-top: 8px;">Try adjusting your filters or date range.</p>
+        </div>
+      </div>
+      
+    </main>
+  </div>
+
+  <!-- Include Modal -->
+  <div id="modalContainer"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+  <script src="./js/api-utils.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/role-permission.js"></script>
+  <script src="./js/common.js"></script>
+  <script src="./js/modal.js"></script>
+  
+  <script>
+    let currentPage = 0;
+    let totalPages = 0;
+    const itemsPerPage = 20;
+    let currentLogs = [];
+    
+    let currentFilters = {
+      search: '',
+      action: '',
+      entity: '',
+      userId: '',
+      days: 7
+    };
+    
+    let statsData = {
+      totalActivities: 0,
+      todayActivities: 0,
+      activeUsers: 0
+    };
+    
+    // Load components
+    async function loadComponents() {
+      const sidebarRes = await fetch('./components/sidebar.html');
+      document.getElementById('sidebarContainer').innerHTML = await sidebarRes.text();
+      
+      const headerRes = await fetch('./components/header.html');
+      document.getElementById('headerContainer').innerHTML = await headerRes.text();
+      
+      const modalRes = await fetch('./components/modal.html');
+      document.getElementById('modalContainer').innerHTML = await modalRes.text();
+
+      initSidebar();
+      initHeader();
+      
+      setPageTitle('Audit Logs', 'Track all system activities and changes');
+      updateUserInfo();
+    }
+    
+    // Initialize page
+    async function initAuditLogsPage() {
+      if (!initializePage('auditLogs')) return;
+      
+      await loadComponents();
+      
+      setupEventListeners();
+      
+      await Promise.all([
+        loadUsers(),
+        loadAuditStats(),
+        loadAuditLogs()
+      ]);
+    }
+    
+    // Setup event listeners
+    function setupEventListeners() {
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', debounce(() => {
+        applyFilters();
+      }, 300));
+      
+      document.getElementById('actionFilter').addEventListener('change', applyFilters);
+      document.getElementById('entityFilter').addEventListener('change', applyFilters);
+      document.getElementById('userFilter').addEventListener('change', applyFilters);
+      document.getElementById('dateRangeFilter').addEventListener('change', applyFilters);
+      document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+      document.getElementById('exportLogsBtn').addEventListener('click', openExportModal);
+    }
+    
+    // Load users for filter
+    async function loadUsers() {
+      try {
+        const userList = await apiGet('/user/names');
+        
+        const userFilter = document.getElementById('userFilter');
+        const currentValue = userFilter.value;
+        
+        userFilter.innerHTML = '<option value="">All Users</option>' +
+          userList.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
+        
+        if (currentValue) {
+          userFilter.value = currentValue;
+        }
+      } catch (error) {
+        console.error('Error loading users:', error);
+      }
+    }
+    
+    // Load audit statistics
+    async function loadAuditStats() {
+      try {
+        const days = currentFilters.days || 7;
+        const stats = await apiGet(`/audit/logs/stats`, 'audit');
+        statsData = {
+          totalActivities: stats.totalActivities || 0,
+          todayActivities: stats.todayActivities || 0,
+          activeUsers: stats.activeUsers || 0
+        };
+        updateStatsDisplay();
+      } catch (error) {
+        console.error('Error loading audit stats:', error);
+        updateStatsDisplay();
+      }
+    }
+    
+    // Update stats display
+    function updateStatsDisplay() {
+      document.getElementById('totalActivitiesStat').textContent = statsData.totalActivities;
+      document.getElementById('todayActivitiesStat').textContent = statsData.todayActivities;
+      document.getElementById('activeUsersStat').textContent = statsData.activeUsers;
+    }
+    
+    // Load audit logs with pagination
+    async function loadAuditLogs(page = 0) {
+      try {
+        showLoader();
+        
+        const params = new URLSearchParams({
+          page: page,
+          size: itemsPerPage,
+          sort: 'timestamp,desc',
+          days: currentFilters.days
+        });
+        
+        if (currentFilters.search && currentFilters.search.trim() !== '') {
+          params.append('search', currentFilters.search.trim());
+        }
+        
+        if (currentFilters.action && currentFilters.action !== '') {
+          params.append('action', currentFilters.action);
+        }
+        
+        if (currentFilters.entity && currentFilters.entity !== '') {
+          params.append('entity', currentFilters.entity);
+        }
+        
+        if (currentFilters.userId && currentFilters.userId !== '') {
+          params.append('userId', currentFilters.userId);
+        }
+        
+        const data = await apiGet(`/audit/logs?${params.toString()}`, 'audit');
+        
+        currentLogs = data.audits || [];
+        currentPage = data.number || 0;
+        totalPages = data.totalPages || 0;
+        
+        hideLoader();
+        renderLogs();
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+        showEmptyState();
+      }
+    }
+    
+    // Apply filters
+    function applyFilters() {
+      currentFilters.search = document.getElementById('searchInput').value;
+      currentFilters.action = document.getElementById('actionFilter').value;
+      currentFilters.entity = document.getElementById('entityFilter').value;
+      currentFilters.userId = document.getElementById('userFilter').value;
+      currentFilters.days = parseInt(document.getElementById('dateRangeFilter').value);
+      
+      // Reload stats with new date range
+      loadAuditStats();
+      
+      // Reload logs from page 0
+      loadAuditLogs(0);
+    }
+    
+    // Clear filters
+    function clearFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('actionFilter').value = '';
+      document.getElementById('entityFilter').value = '';
+      document.getElementById('userFilter').value = '';
+      document.getElementById('dateRangeFilter').value = '7';
+      currentFilters = { search: '', action: '', entity: '', userId: '', days: 7 };
+      
+      loadAuditStats();
+      loadAuditLogs(0);
+    }
+    
+    // Get action badge
+    function getActionBadge(action) {
+      const badges = {
+        'CREATE': '<span class="badge badge-success">Create</span>',
+        'UPDATE': '<span class="badge badge-info">Update</span>',
+        'DELETE': '<span class="badge badge-danger">Delete</span>',
+        'APPROVE': '<span class="badge badge-success">Approve</span>',
+        'REJECT': '<span class="badge badge-danger">Reject</span>'
+      };
+      return badges[action] || `<span class="badge badge-gray">${escapeHtml(action)}</span>`;
+    }
+    
+    // Render logs table
+    function renderLogs() {
+      const loadingState = document.getElementById('loadingState');
+      const tableContainer = document.getElementById('tableContainer');
+      const emptyState = document.getElementById('emptyState');
+      
+      loadingState.style.display = 'none';
+      
+      if (currentLogs.length === 0) {
+        tableContainer.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      tableContainer.style.display = 'block';
+      
+      const tbody = document.getElementById('logsTableBody');
+      tbody.innerHTML = currentLogs.map(log => `
+        <tr>
+          <td style="font-size: 13px; color: var(--gray-600);">
+            ${formatDateTime(log.timestamp)}
+          </td>
+          <td>
+            <div style="font-weight: 600;">${escapeHtml(log.user || 'System')}</div>
+            <div style="font-size: 12px; color: var(--gray-500);">${log.userRole || '-'}</div>
+          </td>
+          <td>${getActionBadge(log.action)}</td>
+          <td>
+            <span class="badge badge-outline">${escapeHtml(log.entity)}</span>
+          </td>
+          <td style="max-width: 300px;">
+            <div style="font-size: 13px; color: var(--gray-700);">
+              ${truncate(log.details || 'No details', 60)}
+            </div>
+          </td>
+          <td style="text-align: center;">
+            <button onclick="viewLogDetails('${log.id}')" class="btn btn-sm btn-outline" title="View Details">
+              👁️
+            </button>
+          </td>
+        </tr>
+      `).join('');
+      
+      renderPagination();
+    }
+    
+    // Render pagination
+    function renderPagination() {
+      const container = document.getElementById('paginationContainer');
+      
+      if (totalPages <= 1) {
+        container.style.display = 'none';
+        return;
+      }
+      
+      container.style.display = 'flex';
+      
+      let html = `
+        <button class="pagination-btn" ${currentPage === 0 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+          ← Previous
+        </button>
+      `;
+      
+      for (let i = 0; i < totalPages; i++) {
+        if (i === 0 || i === totalPages - 1 || (i >= currentPage - 1 && i <= currentPage + 1)) {
+          html += `
+            <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+              ${i + 1}
+            </button>
+          `;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+          html += '<span style="padding: 8px;">...</span>';
+        }
+      }
+      
+      html += `
+        <button class="pagination-btn" ${currentPage === totalPages - 1 ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+          Next →
+        </button>
+      `;
+      
+      container.innerHTML = html;
+    }
+    
+    // Change page
+    function changePage(page) {
+      if (page < 0 || page >= totalPages) return;
+      loadAuditLogs(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // View log details
+    async function viewLogDetails(logId) {
+      try {
+        showLoader();
+        const log = await apiGet(`/audit/logs/${logId}`, 'audit');
+        hideLoader();
+        
+        showDetailsModal('Audit Log Details', {
+          'Timestamp': formatDateTime(log.timestamp),
+          'User': log.user || 'System',
+          'User ID': log.userId || '-',
+          'User Role': log.userRole || '-',
+          'Action': log.action,
+          'Entity': log.entity,
+          'Entity ID': log.entityId || '-',
+          'Details': log.details || 'No details',
+          'Old Value': log.oldValue ? (log.oldValue.length > 200 ? truncate(log.oldValue, 200) : log.oldValue) : 'N/A',
+          'New Value': log.newValue ? (log.newValue.length > 200 ? truncate(log.newValue, 200) : log.newValue) : 'N/A',
+          'IP Address': log.ipAddress || 'N/A',
+          'User Agent': log.userAgent || 'N/A'
+        });
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+    
+    // Open export modal
+    function openExportModal() {
+      const fields = [
+        { 
+          type: 'select', 
+          name: 'days', 
+          label: 'Period', 
+          required: true,
+          value: currentFilters.days,
+          options: [
+            { value: '1', label: 'Today' },
+            { value: '7', label: 'Last 7 Days' },
+            { value: '30', label: 'Last 30 Days' },
+            { value: '90', label: 'Last 90 Days' },
+            { value: '365', label: 'Last Year' }
+          ]
+        },
+        { 
+          type: 'select', 
+          name: 'action', 
+          label: 'Action (Optional)', 
+          options: [
+            { value: '', label: 'All Actions' },
+            { value: 'CREATE', label: 'Create' },
+            { value: 'UPDATE', label: 'Update' },
+            { value: 'DELETE', label: 'Delete' },
+          ]
+        },
+        { 
+          type: 'select', 
+          name: 'entity', 
+          label: 'Entity (Optional)', 
+          options: [
+            { value: '', label: 'All Entities' },
+            { value: 'Project', label: 'Project' },
+            { value: 'Labor', label: 'Labor' },
+            { value: 'Expense', label: 'Expense' },
+            { value: 'Approval', label: 'Approval' },
+            { value: 'Vendor', label: 'Vendor' },
+            { value: 'Attendance', label: 'Attendance' },
+            { value: 'Payroll', label: 'Payroll' }
+          ]
+        },
+        { 
+          type: 'select', 
+          name: 'format', 
+          label: 'Export Format', 
+          required: true,
+          value: 'CSV',
+          options: [
+            { value: 'CSV', label: 'CSV (Excel Compatible)' },
+            { value: 'JSON', label: 'JSON' },
+            { value: 'PDF', label: 'PDF Report' }
+          ]
+        }
+      ];
+      
+      showFormModal('Export Audit Logs', fields, async (data) => {
+        await exportLogs(data);
+      });
+    }
+    
+    // Export logs
+    async function exportLogs(options) {
+      try {
+        showLoader();
+        
+        const params = new URLSearchParams({
+          days: options.days,
+          format: options.format
+        });
+        
+        if (options.action) params.append('action', options.action);
+        if (options.entity) params.append('entity', options.entity);
+        
+        const filename = `audit-logs-${new Date().toISOString().split('T')[0]}.${options.format.toLowerCase()}`;
+        
+        if (options.format === 'CSV') {
+          await apiExportCSV(`/audit/logs/export?${params.toString()}`, filename, 'audit');
+        } else {
+          // For JSON/PDF, use blob download
+          const response = await fetch(`${AUDIT_URL}/audit/logs/export?${params.toString()}`, {
+            headers: {
+              'Authorization': `Bearer ${getAuthToken()}`
+            }
+          });
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        }
+        
+        hideLoader();
+        showToast('Audit logs exported successfully!', 'success');
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+      }
+    }
+    
+    // Show/hide states
+    function showEmptyState() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+    }
+    
+    function showLoader() {
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'none';
+    }
+    
+    function hideLoader() {
+      document.getElementById('loadingState').style.display = 'none';
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initAuditLogsPage);
+  </script>
+  
+</body>
+</html>

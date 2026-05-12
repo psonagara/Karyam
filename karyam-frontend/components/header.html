@@ -1,0 +1,81 @@
+<!-- Header Component for KARYAM Construction ERP -->
+<header style="position: fixed; top: 0; left: var(--sidebar-width); right: 0; height: var(--header-height); background: white; border-bottom: 1px solid var(--gray-200); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; z-index: 99; box-shadow: var(--shadow-sm);">
+  
+  <!-- Page Title -->
+  <div>
+    <h1 id="pageTitle" style="font-size: 1.75rem; font-weight: 700; color: var(--gray-900); margin-bottom: 4px;">Dashboard</h1>
+    <p id="pageSubtitle" style="font-size: 14px; color: var(--gray-600);"></p>
+  </div>
+  
+  <!-- Right Section -->
+  <div style="display: flex; align-items: center; gap: 24px;">
+    
+    <!-- Notifications -->
+    <div style="position: relative;">
+      <button id="notificationBtn" style="position: relative; background: var(--gray-100); border: none; width: 44px; height: 44px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition);" onmouseover="this.style.background='var(--gray-200)'" onmouseout="this.style.background='var(--gray-100)'">
+        <span style="font-size: 20px;">🔔</span>
+        <span id="notificationBadge" style="display: none; position: absolute; top: 6px; right: 6px; width: 10px; height: 10px; background: var(--danger); border-radius: 50%; border: 2px solid white;"></span>
+      </button>
+      
+      <!-- Notification Dropdown -->
+      <div id="notificationDropdown" style="display: none; position: absolute; top: 56px; right: 0; width: 360px; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); border: 1px solid var(--gray-200); max-height: 400px; overflow-y: auto;">
+        <div style="padding: 16px; border-bottom: 1px solid var(--gray-200);">
+          <h3 style="font-size: 1rem; font-weight: 700;">Notifications</h3>
+        </div>
+        <div id="notificationList" style="padding: 8px;">
+          <div class="empty-state" style="padding: 32px 16px;">
+            <div class="empty-state-icon">📭</div>
+            <div class="empty-state-text">No new notifications</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- User Profile -->
+    <div style="position: relative;">
+      <button id="userMenuBtn" style="display: flex; align-items: center; gap: 12px; background: var(--gray-100); border: none; padding: 8px 12px 8px 8px; border-radius: var(--radius-lg); cursor: pointer; transition: var(--transition);" onmouseover="this.style.background='var(--gray-200)'" onmouseout="this.style.background='var(--gray-100)'">
+        <div id="userInitials" style="width: 40px; height: 40px; background: var(--primary); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-family: var(--font-display); font-size: 16px;">
+          U
+        </div>
+        <div style="text-align: left;">
+          <div id="userName" style="font-weight: 600; font-family: var(--font-display); font-size: 14px; color: var(--gray-900);">User Name</div>
+          <div id="userRole" class="badge badge-info" style="font-size: 10px; padding: 2px 8px; margin-top: 2px;">ROLE</div>
+        </div>
+      </button>
+      
+      <!-- User Dropdown -->
+      <div id="userDropdown" style="display: none; position: absolute; top: 56px; right: 0; width: 240px; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); border: 1px solid var(--gray-200); padding: 8px;">
+        <a href="#" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius); text-decoration: none; color: var(--gray-700); transition: var(--transition); font-size: 14px;" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='transparent'">
+          <span style="font-size: 18px;">👤</span>
+          <span>My Profile</span>
+        </a>
+        <a href="#" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius); text-decoration: none; color: var(--gray-700); transition: var(--transition); font-size: 14px;" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='transparent'">
+          <span style="font-size: 18px;">⚙️</span>
+          <span>Settings</span>
+        </a>
+        <div style="height: 1px; background: var(--gray-200); margin: 8px 0;"></div>
+        <a href="#" onclick="handleLogout(); return false;" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius); text-decoration: none; color: var(--danger); transition: var(--transition); font-size: 14px;" onmouseover="this.style.background='var(--danger-light)'" onmouseout="this.style.background='transparent'">
+          <span style="font-size: 18px;">🚪</span>
+          <span>Logout</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  @media (max-width: 768px) {
+    header {
+      left: 0 !important;
+      padding: 0 72px 0 16px !important;
+    }
+    
+    #pageTitle {
+      font-size: 1.25rem !important;
+    }
+    
+    #userMenuBtn > div:last-child {
+      display: none;
+    }
+  }
+</style>

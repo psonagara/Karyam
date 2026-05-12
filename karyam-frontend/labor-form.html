@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARYAM - Labor Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body>
+  
+  <!-- Include Sidebar -->
+  <div id="sidebarContainer"></div>
+  
+  <!-- Main Content -->
+  <div style="margin-left: var(--sidebar-width); padding-top: var(--header-height);">
+    
+    <!-- Include Header -->
+    <div id="headerContainer"></div>
+    
+    <!-- Form Content -->
+    <main style="padding: 32px;">
+      
+      <!-- Page Header -->
+      <div style="margin-bottom: 32px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+          <a href="labor-list.html" style="color: var(--gray-600); text-decoration: none; font-size: 20px;" title="Back to Labor List">
+            ←
+          </a>
+          <h1 id="pageTitleDown" style="font-size: 2rem; font-weight: 800;">Add Worker</h1>
+        </div>
+        <p style="color: var(--gray-600); font-size: 14px; margin-left: 32px;">Fill in the worker details</p>
+      </div>
+      
+      <!-- Labor Form -->
+      <div class="card" style="max-width: 900px;">
+        <form id="laborForm">
+          
+          <!-- Personal Information -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Personal Information
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              
+              <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input type="text" id="laborName" name="name" class="form-input" placeholder="Enter worker's full name" required>
+                <div class="form-error" id="nameError"></div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Labor ID</label>
+                <input type="text" id="laborId" name="laborId" class="form-input" placeholder="Auto-generated" readonly style="background: var(--gray-100); cursor: not-allowed;">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Phone Number *</label>
+                <input type="tel" id="phone" name="phone" class="form-input" placeholder="10-digit phone number" pattern="[0-9]{10}" required>
+                <div class="form-error" id="phoneError"></div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Joining Date *</label>
+                <input type="date" id="joiningDate" name="joiningDate" class="form-input" required>
+                <div class="form-error" id="joiningDateError"></div>
+              </div>
+              
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">Address</label>
+                <textarea id="address" name="address" class="form-input" rows="3" placeholder="Current address..."></textarea>
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Employment Details -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Employment Details
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              
+              <div class="form-group">
+                <label class="form-label">Labor Type *</label>
+                <select id="laborType" name="laborType" class="form-select" required>
+                  <option value="">Select labor type</option>
+                  <option value="MASON">Mason</option>
+                  <option value="GROUND_LABOR">Ground Labor</option>
+                  <option value="ELECTRICIAN">Electrician</option>
+                  <option value="PLUMBER">Plumber</option>
+                  <option value="PAINTER">Painter</option>
+                  <option value="CARPENTER">Carpenter</option>
+                  <option value="OTHER">Other</option>
+                </select>
+                <div class="form-error" id="laborTypeError"></div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Daily Wage (₹) *</label>
+                <input type="number" id="dailyWage" name="dailyWage" class="form-input" placeholder="0" min="0" step="50" required>
+                <div class="form-error" id="dailyWageError"></div>
+                <small style="color: var(--gray-500); font-size: 12px;">Per day working wage</small>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Assigned Project</label>
+                <select id="assignedProject" name="assignedProject" class="form-select">
+                  <option value="">Not assigned to any project</option>
+                  <!-- Projects will be loaded dynamically -->
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Status *</label>
+                <select id="status" name="status" class="form-select" required>
+                  <option value="ACTIVE" selected>Active</option>
+                  <option value="INACTIVE">Inactive</option>
+                </select>
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Skills & Experience -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Skills & Experience (Optional)
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              
+              <div class="form-group">
+                <label class="form-label">Years of Experience</label>
+                <input type="number" id="experience" name="experience" class="form-input" placeholder="0" min="0" max="50" step="0.5">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Skill Level</label>
+                <select id="skillLevel" name="skillLevel" class="form-select">
+                  <option value="">Select skill level</option>
+                  <option value="BEGINNER">Beginner</option>
+                  <option value="INTERMEDIATE">Intermediate</option>
+                  <option value="ADVANCED">Advanced</option>
+                  <option value="EXPERT">Expert</option>
+                </select>
+              </div>
+              
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">Skills & Certifications</label>
+                <textarea id="skills" name="skills" class="form-input" rows="3" placeholder="List any specific skills, certifications, or specializations..."></textarea>
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Emergency Contact -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Emergency Contact (Optional)
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              
+              <div class="form-group">
+                <label class="form-label">Emergency Contact Name</label>
+                <input type="text" id="emergencyName" name="emergencyName" class="form-input" placeholder="Contact person name">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Emergency Contact Phone</label>
+                <input type="tel" id="emergencyPhone" name="emergencyPhone" class="form-input" placeholder="10-digit phone number" pattern="[0-9]{10}">
+                <div class="form-error" id="emergencyPhoneError"></div>
+              </div>
+              
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">Relationship</label>
+                <input type="text" id="emergencyRelation" name="emergencyRelation" class="form-input" placeholder="e.g., Spouse, Parent, Sibling">
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Bank Details -->
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200);">
+              Bank Details (Optional)
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              
+              <div class="form-group">
+                <label class="form-label">Bank Name</label>
+                <input type="text" id="bankName" name="bankName" class="form-input" placeholder="Bank name">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Account Number</label>
+                <input type="text" id="accountNumber" name="accountNumber" class="form-input" placeholder="Account number">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">IFSC Code</label>
+                <input type="text" id="ifscCode" name="ifscCode" class="form-input" placeholder="IFSC code" pattern="^[A-Z]{4}0[A-Z0-9]{6}$">
+                <div class="form-error" id="ifscError"></div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Account Holder Name</label>
+                <input type="text" id="accountHolder" name="accountHolder" class="form-input" placeholder="Account holder name">
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Form Actions -->
+          <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 24px; border-top: 1px solid var(--gray-200);">
+            <a href="labor-list.html" class="btn btn-outline">
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-primary btn-lg">
+              <span id="submitBtnText">Save Worker</span>
+              <span id="submitLoader" class="loader" style="display: none;"></span>
+            </button>
+          </div>
+          
+        </form>
+      </div>
+      
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+  <script src="./js/api-utils.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/role-permission.js"></script>
+  <script src="./js/common.js"></script>
+  
+  <script>
+    let isEditMode = false;
+    let laborId = null;
+    
+    // Load components
+    async function loadComponents() {
+      const sidebarRes = await fetch('./components/sidebar.html');
+      document.getElementById('sidebarContainer').innerHTML = await sidebarRes.text();
+      
+      const headerRes = await fetch('./components/header.html');
+      document.getElementById('headerContainer').innerHTML = await headerRes.text();
+
+      initSidebar();
+      initHeader();
+      
+      updateUserInfo();
+    }
+    
+    // Initialize page
+    async function initLaborForm() {
+      if (!initializePage('labor')) return;
+      
+      // Check if user can create/edit
+      const urlParams = new URLSearchParams(window.location.search);
+      laborId = urlParams.get('id');
+      isEditMode = !!laborId;
+      
+      if (isEditMode && !canEdit('labor')) {
+        window.location.href = 'access-denied.html';
+        return;
+      }
+      
+      if (!isEditMode && !canCreate('labor')) {
+        window.location.href = 'access-denied.html';
+        return;
+      }
+      
+      await loadComponents();
+      
+      // Set page title
+      if (isEditMode) {
+        document.getElementById('pageTitle').textContent = 'Edit Worker';
+        setPageTitle('Edit Worker', 'Update worker information');
+        document.getElementById('submitBtnText').textContent = 'Update Worker';
+      } else {
+        setPageTitle('Add Worker', 'Add a new worker to the system');
+      }
+      
+      // Setup form
+      setupForm();
+      
+      // Load projects for dropdown
+      await loadProjects();
+      
+      // Load labor data if editing
+      if (isEditMode) {
+        await loadLaborData();
+      }
+    }
+    
+    // Setup form
+    function setupForm() {
+      const form = document.getElementById('laborForm');
+      form.addEventListener('submit', handleSubmit);
+      
+      // Phone validation
+      const phoneInput = document.getElementById('phone');
+      phoneInput.addEventListener('input', () => {
+        const value = phoneInput.value;
+        if (value && !isValidPhone(value)) {
+          document.getElementById('phoneError').textContent = 'Please enter a valid 10-digit phone number';
+        } else {
+          document.getElementById('phoneError').textContent = '';
+        }
+      });
+      
+      // Emergency phone validation
+      const emergencyPhoneInput = document.getElementById('emergencyPhone');
+      emergencyPhoneInput.addEventListener('input', () => {
+        const value = emergencyPhoneInput.value;
+        if (value && !isValidPhone(value)) {
+          document.getElementById('emergencyPhoneError').textContent = 'Please enter a valid 10-digit phone number';
+        } else {
+          document.getElementById('emergencyPhoneError').textContent = '';
+        }
+      });
+      
+      // IFSC validation
+      const ifscInput = document.getElementById('ifscCode');
+      ifscInput.addEventListener('input', () => {
+        const value = ifscInput.value.toUpperCase();
+        ifscInput.value = value;
+        const pattern = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+        if (value && !pattern.test(value)) {
+          document.getElementById('ifscError').textContent = 'Invalid IFSC code format';
+        } else {
+          document.getElementById('ifscError').textContent = '';
+        }
+      });
+    }
+    
+    // Load projects for dropdown
+    async function loadProjects() {
+      try {
+        let data = await apiGet('/projects/name');
+        let projects = data.content;
+        const select = document.getElementById('assignedProject');
+        
+        if (projects && projects.length > 0) {
+          projects.forEach(project => {
+            const option = document.createElement('option');
+            option.value = project.id;
+            option.textContent = project.name;
+            select.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load projects:', error);
+      }
+    }
+    
+    // Load labor data for editing
+    async function loadLaborData() {
+      try {
+        showLoader();
+        let data = await apiGet(`/labors/${laborId}`);
+        const labor = data.content;
+        hideLoader();
+        
+        // Populate form
+        document.getElementById('pageTitleDown').textContent = labor.name;
+        document.getElementById('laborName').value = labor.name || '';
+        document.getElementById('laborId').value = labor.laborId || '';
+        document.getElementById('phone').value = labor.phone || '';
+        document.getElementById('address').value = labor.address || '';
+        document.getElementById('laborType').value = labor.laborType || '';
+        document.getElementById('dailyWage').value = labor.dailyWage || '';
+        document.getElementById('assignedProject').value = labor.assignedProjectId || '';
+        document.getElementById('joiningDate').value = labor.joiningDate ? labor.joiningDate.split('T')[0] : '';
+        document.getElementById('status').value = labor.status || 'ACTIVE';
+        document.getElementById('experience').value = labor.experience || '';
+        document.getElementById('skillLevel').value = labor.skillLevel || '';
+        document.getElementById('skills').value = labor.skills || '';
+        document.getElementById('emergencyName').value = labor.emergencyContactName || '';
+        document.getElementById('emergencyPhone').value = labor.emergencyContactPhone || '';
+        document.getElementById('emergencyRelation').value = labor.emergencyContactRelation || '';
+        document.getElementById('bankName').value = labor.bankName || '';
+        document.getElementById('accountNumber').value = labor.accountNumber || '';
+        document.getElementById('ifscCode').value = labor.ifscCode || '';
+        document.getElementById('accountHolder').value = labor.accountHolder || '';
+      } catch (error) {
+        hideLoader();
+        handleApiError(error);
+        setTimeout(() => {
+          window.location.href = 'labor-list.html';
+        }, 2000);
+      }
+    }
+    
+    // Validate form
+    function validateForm() {
+      let isValid = true;
+      
+      // Clear previous errors
+      document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+      
+      // Name
+      const name = document.getElementById('laborName').value.trim();
+      if (!name) {
+        document.getElementById('nameError').textContent = 'Worker name is required';
+        isValid = false;
+      }
+      
+      // Phone
+      const phone = document.getElementById('phone').value;
+      if (!phone) {
+        document.getElementById('phoneError').textContent = 'Phone number is required';
+        isValid = false;
+      } else if (!isValidPhone(phone)) {
+        document.getElementById('phoneError').textContent = 'Invalid phone number';
+        isValid = false;
+      }
+      
+      // Labor type
+      const laborType = document.getElementById('laborType').value;
+      if (!laborType) {
+        document.getElementById('laborTypeError').textContent = 'Labor type is required';
+        isValid = false;
+      }
+      
+      // Daily wage
+      const dailyWage = document.getElementById('dailyWage').value;
+      if (!dailyWage || dailyWage <= 0) {
+        document.getElementById('dailyWageError').textContent = 'Valid daily wage is required';
+        isValid = false;
+      }
+      
+      // Joining date
+      const joiningDate = document.getElementById('joiningDate').value;
+      if (!joiningDate) {
+        document.getElementById('joiningDateError').textContent = 'Joining date is required';
+        isValid = false;
+      }
+      
+      // Emergency phone (if provided)
+      const emergencyPhone = document.getElementById('emergencyPhone').value;
+      if (emergencyPhone && !isValidPhone(emergencyPhone)) {
+        document.getElementById('emergencyPhoneError').textContent = 'Invalid phone number';
+        isValid = false;
+      }
+      
+      // IFSC (if provided)
+      const ifsc = document.getElementById('ifscCode').value;
+      const pattern = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+      if (ifsc && !pattern.test(ifsc)) {
+        document.getElementById('ifscError').textContent = 'Invalid IFSC code';
+        isValid = false;
+      }
+      
+      return isValid;
+    }
+    
+    // Handle form submission
+    async function handleSubmit(e) {
+      e.preventDefault();
+      
+      if (!validateForm()) {
+        showToast('Please fix the errors in the form', 'error');
+        return;
+      }
+      
+      const formData = {
+        name: document.getElementById('laborName').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        address: document.getElementById('address').value.trim() || null,
+        laborType: document.getElementById('laborType').value,
+        dailyWage: parseFloat(document.getElementById('dailyWage').value),
+        assignedProjectId: document.getElementById('assignedProject').value || null,
+        joiningDate: document.getElementById('joiningDate').value,
+        status: document.getElementById('status').value,
+        experience: document.getElementById('experience').value ? parseFloat(document.getElementById('experience').value) : null,
+        skillLevel: document.getElementById('skillLevel').value || null,
+        skills: document.getElementById('skills').value.trim() || null,
+        emergencyContactName: document.getElementById('emergencyName').value.trim() || null,
+        emergencyContactPhone: document.getElementById('emergencyPhone').value.trim() || null,
+        emergencyContactRelation: document.getElementById('emergencyRelation').value.trim() || null,
+        bankName: document.getElementById('bankName').value.trim() || null,
+        accountNumber: document.getElementById('accountNumber').value.trim() || null,
+        ifscCode: document.getElementById('ifscCode').value.trim() || null,
+        accountHolder: document.getElementById('accountHolder').value.trim() || null
+      };
+      
+      // Show loading
+      const submitText = document.getElementById('submitBtnText');
+      const submitLoader = document.getElementById('submitLoader');
+      submitText.style.display = 'none';
+      submitLoader.style.display = 'inline-block';
+      
+      try {
+        if (isEditMode) {
+          await apiPut(`/labors/${laborId}`, formData);
+          showToast('Worker updated successfully!', 'success');
+        } else {
+          await apiPost('/labors', formData);
+          showToast('Worker added successfully!', 'success');
+        }
+        
+        setTimeout(() => {
+          window.location.href = 'labor-list.html';
+        }, 1500);
+      } catch (error) {
+        handleApiError(error);
+      } finally {
+        submitText.style.display = 'inline';
+        submitLoader.style.display = 'none';
+      }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initLaborForm);
+  </script>
+  
+</body>
+</html>
