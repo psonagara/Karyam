@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "karyam.jwt.exp-time-in-min",
+    "type": "java.lang.String",
+    "description": "Value of expiration time in minutes for JWT token"
+  },
+  {
+    "name": "karyam.jwt.secrete-key",
+    "type": "java.lang.String",
+    "description": "Secrete key used to generate JWT token"
+  }
+]}
