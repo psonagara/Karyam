@@ -20,6 +20,10 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  boot:
+    admin:
+      client:
+        url: http://localhost:9988
   kafka:
     consumer:
       bootstrap-servers: localhost:9092
@@ -42,3 +46,12 @@ karyam:
   jwt:
     exp-time-in-min: 840
     secrete-key: yourSecretJwtKey
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
