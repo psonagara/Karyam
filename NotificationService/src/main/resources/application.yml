@@ -2,8 +2,6 @@ server:
   port: 8082
   servlet:
     context-path: /notification
-    
-debug: true
 
 spring:
   application:
@@ -13,6 +11,10 @@ spring:
     url: jdbc:mysql://localhost:3306/karyam
     username: root
     password: yourPassword
+  boot:
+    admin:
+      client:
+        url: http://localhost:9988
   kafka:
     consumer:
       bootstrap-servers: localhost:9092
@@ -35,3 +37,12 @@ karyam:
   jwt:
     exp-time-in-min: 840
     secrete-key: yourSecretJwtKey
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
